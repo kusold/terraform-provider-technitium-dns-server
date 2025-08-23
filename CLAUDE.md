@@ -1,10 +1,12 @@
 # terraform-provider-technitium-dns-server
 This project is a terraform provider for controlling the Technitium DNS Server.
 
+@TODO.md contains all the tasks that need to accomplished in this project.
+
 ## Technitium DNS Server
 Technitium is a an open source DNS Server.
 
-Refer to @.ai/docs/technitium-api.md for the API Documentation
+The Technitium API Docs are located at .ai/docs/technitium-api.md. Ensure you refer to it whenever you have questions about how the API works, or what the request/response body looks like.
 
 Other useful links are below:
 * [GitHub Repository](https://github.com/TechnitiumSoftware/DnsServer)
