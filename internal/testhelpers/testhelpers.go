@@ -8,6 +8,8 @@ import (
 
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
+
+	"github.com/kusold/terraform-provider-technitium-dns-server/internal/client"
 )
 
 const (
@@ -83,4 +85,18 @@ func (tc *TechnitiumContainer) GetAPIURL() string {
 // Cleanup terminates the container
 func (tc *TechnitiumContainer) Cleanup(ctx context.Context) error {
 	return tc.Container.Terminate(ctx)
+}
+
+// CreateTestClient creates a client for testing against the container
+func CreateTestClient(host, username, password string) (*client.Client, error) {
+	clientConfig := client.Config{
+		Host:               host,
+		Username:           username,
+		Password:           password,
+		TimeoutSeconds:     30,
+		RetryAttempts:      3,
+		InsecureSkipVerify: false,
+	}
+
+	return client.NewClient(clientConfig)
 }

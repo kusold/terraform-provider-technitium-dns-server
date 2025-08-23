@@ -109,15 +109,30 @@ func (c *Client) Login(ctx context.Context) error {
 
 	endpoint := "/api/user/login?" + params.Encode()
 	
+	tflog.Debug(ctx, "Attempting login to", map[string]interface{}{
+		"endpoint": endpoint,
+		"username": c.username,
+	})
+	
+	// Login endpoint returns data directly, not wrapped in APIResponse
 	var response LoginResponse
-	if err := c.doRequest(ctx, http.MethodGet, endpoint, nil, &response); err != nil {
+	if err := c.makeLoginRequest(ctx, http.MethodGet, endpoint, nil, &response); err != nil {
 		return fmt.Errorf("login failed: %w", err)
 	}
+	
+	tflog.Debug(ctx, "Login response received", map[string]interface{}{
+		"username": response.Username,
+		"displayName": response.DisplayName,
+		"token": response.Token,
+		"token_empty": response.Token == "",
+	})
 
 	c.Token = response.Token
 	tflog.Debug(ctx, "Successfully authenticated with Technitium DNS server", map[string]interface{}{
 		"username": response.Username,
 		"displayName": response.DisplayName,
+		"token": response.Token,
+		"token_length": len(response.Token),
 	})
 
 	return nil
@@ -167,6 +182,73 @@ func (c *Client) doRequest(ctx context.Context, method, endpoint string, body in
 	}
 
 	return lastErr
+}
+
+// makeLoginRequest performs a single HTTP request for login (which returns data directly)
+func (c *Client) makeLoginRequest(ctx context.Context, method, endpoint string, body interface{}, result interface{}) error {
+	// Prepare request URL
+	requestURL := c.BaseURL + endpoint
+
+	// Prepare request body
+	var requestBody io.Reader
+	if body != nil {
+		jsonBody, err := json.Marshal(body)
+		if err != nil {
+			return fmt.Errorf("failed to marshal request body: %w", err)
+		}
+		requestBody = bytes.NewBuffer(jsonBody)
+	}
+
+	// Create request
+	req, err := http.NewRequestWithContext(ctx, method, requestURL, requestBody)
+	if err != nil {
+		return fmt.Errorf("failed to create request: %w", err)
+	}
+
+	// Set headers
+	if body != nil {
+		req.Header.Set("Content-Type", "application/json")
+	}
+
+	// Log request
+	tflog.Debug(ctx, "Making login API request", map[string]interface{}{
+		"method": method,
+		"url": requestURL,
+	})
+
+	// Make request
+	resp, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return fmt.Errorf("request failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	// Read response
+	responseBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return fmt.Errorf("failed to read response: %w", err)
+	}
+
+	// Log response
+	tflog.Debug(ctx, "Received login API response", map[string]interface{}{
+		"status_code": resp.StatusCode,
+		"response_length": len(responseBody),
+		"response_body": string(responseBody),
+	})
+
+	// Check HTTP status
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return fmt.Errorf("API request failed with status %d: %s", resp.StatusCode, string(responseBody))
+	}
+
+	// Login endpoint returns data directly, not wrapped in APIResponse
+	if result != nil {
+		if err := json.Unmarshal(responseBody, result); err != nil {
+			return fmt.Errorf("failed to parse login response: %w", err)
+		}
+	}
+
+	return nil
 }
 
 // makeRequest performs a single HTTP request

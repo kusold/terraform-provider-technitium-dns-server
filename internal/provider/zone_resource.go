@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 	"fmt"
+	"net/url"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
@@ -35,6 +36,7 @@ type ZoneResource struct {
 
 // ZoneResourceModel describes the resource data model.
 type ZoneResourceModel struct {
+	ID                       types.String `tfsdk:"id"`
 	Name                     types.String `tfsdk:"name"`
 	Type                     types.String `tfsdk:"type"`
 	Catalog                  types.String `tfsdk:"catalog"`
@@ -69,6 +71,13 @@ func (r *ZoneResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 		MarkdownDescription: "Technitium DNS Server zone resource",
 
 		Attributes: map[string]schema.Attribute{
+			"id": schema.StringAttribute{
+				MarkdownDescription: "The unique identifier for the zone resource.",
+				Computed:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
 			"name": schema.StringAttribute{
 				MarkdownDescription: "The domain name for the zone. Can be a valid domain name, IP address, or network address in CIDR format for reverse zones.",
 				Required:            true,
@@ -95,6 +104,7 @@ func (r *ZoneResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 				Optional:            true,
 				Computed:            true,
 				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.RequiresReplace(),
 					boolplanmodifier.UseStateForUnknown(),
 				},
 			},
@@ -250,6 +260,9 @@ func (r *ZoneResource) Create(ctx context.Context, req resource.CreateRequest, r
 		return
 	}
 
+	// Set the ID for the resource (zone name serves as the ID)
+	data.ID = data.Name
+	
 	// Read the zone back to get computed values
 	if err := r.readZone(ctx, &data); err != nil {
 		resp.Diagnostics.AddError(
@@ -358,112 +371,118 @@ func (r *ZoneResource) Delete(ctx context.Context, req resource.DeleteRequest, r
 }
 
 func (r *ZoneResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
+	// Set both ID and name to the import ID (zone name)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), req.ID)...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("name"), req.ID)...)
 }
 
 // createZone creates a new zone via the API
 func (r *ZoneResource) createZone(ctx context.Context, data *ZoneResourceModel) error {
-	endpoint := "/api/zones/create"
-	params := map[string]string{
-		"zone": data.Name.ValueString(),
-		"type": data.Type.ValueString(),
-	}
+	params := url.Values{}
+	params.Set("zone", data.Name.ValueString())
+	params.Set("type", data.Type.ValueString())
 
 	// Add optional parameters based on zone type and configuration
 	if !data.Catalog.IsNull() && !data.Catalog.IsUnknown() {
-		params["catalog"] = data.Catalog.ValueString()
+		params.Set("catalog", data.Catalog.ValueString())
 	}
 
 	if !data.UseSoaSerialDateScheme.IsNull() && !data.UseSoaSerialDateScheme.IsUnknown() {
-		params["useSoaSerialDateScheme"] = fmt.Sprintf("%t", data.UseSoaSerialDateScheme.ValueBool())
+		params.Set("useSoaSerialDateScheme", fmt.Sprintf("%t", data.UseSoaSerialDateScheme.ValueBool()))
 	}
 
 	if !data.PrimaryNameServerAddresses.IsNull() && !data.PrimaryNameServerAddresses.IsUnknown() {
-		params["primaryNameServerAddresses"] = data.PrimaryNameServerAddresses.ValueString()
+		params.Set("primaryNameServerAddresses", data.PrimaryNameServerAddresses.ValueString())
 	}
 
 	if !data.ZoneTransferProtocol.IsNull() && !data.ZoneTransferProtocol.IsUnknown() {
-		params["zoneTransferProtocol"] = data.ZoneTransferProtocol.ValueString()
+		params.Set("zoneTransferProtocol", data.ZoneTransferProtocol.ValueString())
 	}
 
 	if !data.TsigKeyName.IsNull() && !data.TsigKeyName.IsUnknown() {
-		params["tsigKeyName"] = data.TsigKeyName.ValueString()
+		params.Set("tsigKeyName", data.TsigKeyName.ValueString())
 	}
 
 	if !data.ValidateZone.IsNull() && !data.ValidateZone.IsUnknown() {
-		params["validateZone"] = fmt.Sprintf("%t", data.ValidateZone.ValueBool())
+		params.Set("validateZone", fmt.Sprintf("%t", data.ValidateZone.ValueBool()))
 	}
 
 	if !data.InitializeForwarder.IsNull() && !data.InitializeForwarder.IsUnknown() {
-		params["initializeForwarder"] = fmt.Sprintf("%t", data.InitializeForwarder.ValueBool())
+		params.Set("initializeForwarder", fmt.Sprintf("%t", data.InitializeForwarder.ValueBool()))
 	}
 
 	if !data.Protocol.IsNull() && !data.Protocol.IsUnknown() {
-		params["protocol"] = data.Protocol.ValueString()
+		params.Set("protocol", data.Protocol.ValueString())
 	}
 
 	if !data.Forwarder.IsNull() && !data.Forwarder.IsUnknown() {
-		params["forwarder"] = data.Forwarder.ValueString()
+		params.Set("forwarder", data.Forwarder.ValueString())
 	}
 
 	if !data.DnssecValidation.IsNull() && !data.DnssecValidation.IsUnknown() {
-		params["dnssecValidation"] = fmt.Sprintf("%t", data.DnssecValidation.ValueBool())
+		params.Set("dnssecValidation", fmt.Sprintf("%t", data.DnssecValidation.ValueBool()))
 	}
 
 	if !data.ProxyType.IsNull() && !data.ProxyType.IsUnknown() {
-		params["proxyType"] = data.ProxyType.ValueString()
+		params.Set("proxyType", data.ProxyType.ValueString())
 	}
 
 	if !data.ProxyAddress.IsNull() && !data.ProxyAddress.IsUnknown() {
-		params["proxyAddress"] = data.ProxyAddress.ValueString()
+		params.Set("proxyAddress", data.ProxyAddress.ValueString())
 	}
 
 	if !data.ProxyPort.IsNull() && !data.ProxyPort.IsUnknown() {
-		params["proxyPort"] = fmt.Sprintf("%d", data.ProxyPort.ValueInt64())
+		params.Set("proxyPort", fmt.Sprintf("%d", data.ProxyPort.ValueInt64()))
 	}
 
 	if !data.ProxyUsername.IsNull() && !data.ProxyUsername.IsUnknown() {
-		params["proxyUsername"] = data.ProxyUsername.ValueString()
+		params.Set("proxyUsername", data.ProxyUsername.ValueString())
 	}
 
 	if !data.ProxyPassword.IsNull() && !data.ProxyPassword.IsUnknown() {
-		params["proxyPassword"] = data.ProxyPassword.ValueString()
+		params.Set("proxyPassword", data.ProxyPassword.ValueString())
 	}
 
-	// Build URL with query parameters
-	queryParams := make([]string, 0, len(params))
-	for key, value := range params {
-		queryParams = append(queryParams, fmt.Sprintf("%s=%s", key, value))
-	}
-	
-	fullEndpoint := endpoint + "?" + strings.Join(queryParams, "&")
+	endpoint := "/api/zones/create?" + params.Encode()
 
 	var response struct {
 		Domain string `json:"domain"`
 	}
 
-	return r.client.DoRequest(ctx, "GET", fullEndpoint, nil, &response)
+	return r.client.DoRequest(ctx, "GET", endpoint, nil, &response)
 }
 
 // readZone reads zone information from the API
 func (r *ZoneResource) readZone(ctx context.Context, data *ZoneResourceModel) error {
 	// First, get the zone options
-	endpoint := fmt.Sprintf("/api/zones/options/get?zone=%s", data.Name.ValueString())
+	params := url.Values{}
+	params.Set("zone", data.Name.ValueString())
+	endpoint := "/api/zones/options/get?" + params.Encode()
 	
 	var optionsResponse ZoneOptionsResponse
 	if err := r.client.DoRequest(ctx, "GET", endpoint, nil, &optionsResponse); err != nil {
 		return fmt.Errorf("failed to get zone options: %w", err)
 	}
 
+	// Ensure ID is set (zone name serves as the ID)
+	data.ID = data.Name
+	
 	// Update the data model with the response
 	data.Type = types.StringValue(optionsResponse.Type)
 	data.Internal = types.BoolValue(optionsResponse.Internal)
 	data.DnssecStatus = types.StringValue(optionsResponse.DnssecStatus)
 	data.Disabled = types.BoolValue(optionsResponse.Disabled)
 
-	// Set optional fields if they exist in the response
+	// Set computed attributes - ensure all computed attributes get explicit values
 	if optionsResponse.UseSoaSerialDateScheme != nil {
 		data.UseSoaSerialDateScheme = types.BoolValue(*optionsResponse.UseSoaSerialDateScheme)
+	} else {
+		// API doesn't return this field, preserve the value from create operation
+		// If this is a new resource without a state value, default to false
+		if data.UseSoaSerialDateScheme.IsNull() || data.UseSoaSerialDateScheme.IsUnknown() {
+			data.UseSoaSerialDateScheme = types.BoolValue(false)
+		}
+		// Otherwise, preserve the existing state value (don't modify it)
 	}
 
 	if optionsResponse.Catalog != "" {
@@ -476,6 +495,9 @@ func (r *ZoneResource) readZone(ctx context.Context, data *ZoneResourceModel) er
 
 	if optionsResponse.PrimaryZoneTransferProtocol != "" {
 		data.ZoneTransferProtocol = types.StringValue(optionsResponse.PrimaryZoneTransferProtocol)
+	} else {
+		// Set default if not provided by API
+		data.ZoneTransferProtocol = types.StringValue("Tcp")
 	}
 
 	if optionsResponse.PrimaryZoneTransferTsigKeyName != "" {
@@ -484,11 +506,31 @@ func (r *ZoneResource) readZone(ctx context.Context, data *ZoneResourceModel) er
 
 	if optionsResponse.ValidateZone != nil {
 		data.ValidateZone = types.BoolValue(*optionsResponse.ValidateZone)
+	} else {
+		data.ValidateZone = types.BoolValue(false)
 	}
+	
+	// Set computed attributes that need explicit defaults
+	// Preserve InitializeForwarder value if already set, otherwise default to false
+	if data.InitializeForwarder.IsNull() || data.InitializeForwarder.IsUnknown() {
+		data.InitializeForwarder = types.BoolValue(false)
+	}
+	
+	// Preserve DnssecValidation value if already set, otherwise default to false
+	if data.DnssecValidation.IsNull() || data.DnssecValidation.IsUnknown() {
+		data.DnssecValidation = types.BoolValue(false)
+	}
+	
+	// Set default values for schema attributes with defaults
+	data.Protocol = types.StringValue("Udp")
+	data.ProxyType = types.StringValue("DefaultProxy")
 
 	// Get zone records to extract SOA serial
-	recordsEndpoint := fmt.Sprintf("/api/zones/records/get?domain=%s&zone=%s&listZone=true", 
-		data.Name.ValueString(), data.Name.ValueString())
+	recordsParams := url.Values{}
+	recordsParams.Set("domain", data.Name.ValueString())
+	recordsParams.Set("zone", data.Name.ValueString())
+	recordsParams.Set("listZone", "true")
+	recordsEndpoint := "/api/zones/records/get?" + recordsParams.Encode()
 	
 	var recordsResponse ZoneRecordsResponse
 	if err := r.client.DoRequest(ctx, "GET", recordsEndpoint, nil, &recordsResponse); err != nil {
@@ -499,12 +541,23 @@ func (r *ZoneResource) readZone(ctx context.Context, data *ZoneResourceModel) er
 		})
 	} else {
 		// Find SOA record to get serial
+		soaFound := false
 		for _, record := range recordsResponse.Records {
 			if record.Type == "SOA" && record.RData.SoaRecord != nil {
 				data.SoaSerial = types.Int64Value(int64(record.RData.SoaRecord.Serial))
+				soaFound = true
 				break
 			}
 		}
+		if !soaFound {
+			// Default SOA serial if not found
+			data.SoaSerial = types.Int64Value(1)
+		}
+	}
+	
+	// Ensure SoaSerial is set even if records couldn't be read
+	if data.SoaSerial.IsNull() || data.SoaSerial.IsUnknown() {
+		data.SoaSerial = types.Int64Value(1)
 	}
 
 	return nil
@@ -512,50 +565,43 @@ func (r *ZoneResource) readZone(ctx context.Context, data *ZoneResourceModel) er
 
 // updateZone updates zone options via the API
 func (r *ZoneResource) updateZone(ctx context.Context, data *ZoneResourceModel) error {
-	endpoint := "/api/zones/options/set"
-	params := map[string]string{
-		"zone": data.Name.ValueString(),
-	}
+	params := url.Values{}
+	params.Set("zone", data.Name.ValueString())
 
 	// Add parameters that can be updated
 	if !data.Catalog.IsNull() && !data.Catalog.IsUnknown() {
-		params["catalog"] = data.Catalog.ValueString()
+		params.Set("catalog", data.Catalog.ValueString())
 	}
 
-	if !data.UseSoaSerialDateScheme.IsNull() && !data.UseSoaSerialDateScheme.IsUnknown() {
-		params["useSoaSerialDateScheme"] = fmt.Sprintf("%t", data.UseSoaSerialDateScheme.ValueBool())
-	}
+	// Note: useSoaSerialDateScheme cannot be updated after zone creation
+	// This attribute requires zone replacement (handled by RequiresReplace plan modifier)
 
 	if !data.PrimaryNameServerAddresses.IsNull() && !data.PrimaryNameServerAddresses.IsUnknown() {
-		params["primaryNameServerAddresses"] = data.PrimaryNameServerAddresses.ValueString()
+		params.Set("primaryNameServerAddresses", data.PrimaryNameServerAddresses.ValueString())
 	}
 
 	if !data.ZoneTransferProtocol.IsNull() && !data.ZoneTransferProtocol.IsUnknown() {
-		params["primaryZoneTransferProtocol"] = data.ZoneTransferProtocol.ValueString()
+		params.Set("primaryZoneTransferProtocol", data.ZoneTransferProtocol.ValueString())
 	}
 
 	if !data.TsigKeyName.IsNull() && !data.TsigKeyName.IsUnknown() {
-		params["primaryZoneTransferTsigKeyName"] = data.TsigKeyName.ValueString()
+		params.Set("primaryZoneTransferTsigKeyName", data.TsigKeyName.ValueString())
 	}
 
 	if !data.ValidateZone.IsNull() && !data.ValidateZone.IsUnknown() {
-		params["validateZone"] = fmt.Sprintf("%t", data.ValidateZone.ValueBool())
+		params.Set("validateZone", fmt.Sprintf("%t", data.ValidateZone.ValueBool()))
 	}
 
-	// Build URL with query parameters
-	queryParams := make([]string, 0, len(params))
-	for key, value := range params {
-		queryParams = append(queryParams, fmt.Sprintf("%s=%s", key, value))
-	}
-	
-	fullEndpoint := endpoint + "?" + strings.Join(queryParams, "&")
+	endpoint := "/api/zones/options/set?" + params.Encode()
 
-	return r.client.DoRequest(ctx, "GET", fullEndpoint, nil, nil)
+	return r.client.DoRequest(ctx, "GET", endpoint, nil, nil)
 }
 
 // deleteZone deletes a zone via the API
 func (r *ZoneResource) deleteZone(ctx context.Context, zoneName string) error {
-	endpoint := fmt.Sprintf("/api/zones/delete?zone=%s", zoneName)
+	params := url.Values{}
+	params.Set("zone", zoneName)
+	endpoint := "/api/zones/delete?" + params.Encode()
 	return r.client.DoRequest(ctx, "GET", endpoint, nil, nil)
 }
 

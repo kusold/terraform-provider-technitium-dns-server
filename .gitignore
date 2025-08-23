@@ -1,3 +1,4 @@
 .claude/*.local.*
 .direnv/
+.idea/
 terraform-provider-technitium-dns-server
