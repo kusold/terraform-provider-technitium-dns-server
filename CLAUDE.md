@@ -29,3 +29,5 @@ This project uses Nix flakes to ensure that all the required dependencies are av
 
 ## Workflow
 Whenever you start a new task, it should be performed in a branch.
+
+- The project's plan is stored in TODO.md. Update it as you complete tasks
