@@ -1,0 +1,3 @@
+.claude/*.local.*
+.direnv/
+terraform-provider-technitium-dns-server
