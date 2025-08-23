@@ -33,7 +33,9 @@ Create a comprehensive Terraform provider for managing Technitium DNS Server ins
 
 ### Next Steps
 - **Phase 1 Complete**: `technitium_dns_record` resource implemented ✅
-- **Phase 2 Next**: Implement data sources for zones and DNS records
+- **Phase 2 Progress**: 
+  - ✅ Implemented `technitium_zone` data source
+  - Next: Implement `technitium_dns_records` data source
 
 ## Repository Setup & Infrastructure
 
@@ -118,10 +120,9 @@ Create a comprehensive Terraform provider for managing Technitium DNS Server ins
 - [x] Implement record import functionality
 
 ### Data Sources
-- [ ] Implement `technitium_zone` data source:
-  - [ ] Query existing zone information
-  - [ ] Support filtering and selection
-  - [ ] Return comprehensive zone metadata
+- [✅] Implement `technitium_zone` data source:
+  - [✅] Query existing zone information
+  - [✅] Return comprehensive zone metadata
 - [ ] Implement `technitium_dns_records` data source:
   - [ ] List all records in a zone
   - [ ] Support filtering by record type

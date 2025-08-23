@@ -6,19 +6,18 @@ data "technitium_zone" "example" {
 # Output zone information
 output "zone_info" {
   value = {
-    name              = data.technitium_zone.example.name
-    type              = data.technitium_zone.example.type
-    is_active         = data.technitium_zone.example.is_active
-    is_expired        = data.technitium_zone.example.is_expired
-    records_count     = data.technitium_zone.example.records_count
-    last_modified     = data.technitium_zone.example.last_modified
-    dnssec_status     = data.technitium_zone.example.dnssec_status
+    name          = data.technitium_zone.example.name
+    type          = data.technitium_zone.example.type
+    internal      = data.technitium_zone.example.internal
+    disabled      = data.technitium_zone.example.disabled
+    dnssec_status = data.technitium_zone.example.dnssec_status
+    soa_serial    = data.technitium_zone.example.soa_serial
   }
 }
 
 # Example using the data source in other resources
 resource "technitium_dns_record" "conditional_record" {
-  count = data.technitium_zone.example.is_active ? 1 : 0
+  count = data.technitium_zone.example.disabled ? 0 : 1
   
   zone = data.technitium_zone.example.name
   name = "api"
