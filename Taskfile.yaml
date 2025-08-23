@@ -1,6 +1,96 @@
 version: "3"
 
 tasks:
+  default:
+    desc: Show available tasks
+    cmds:
+      - task --list-all
+
+  build:
+    desc: Build the provider binary
+    cmds:
+      - go build -o terraform-provider-technitium-dns-server
+
+  test:
+    desc: Run all tests
+    cmds:
+      - go test -v ./...
+
+  test-unit:
+    desc: Run unit tests only (short)
+    cmds:
+      - go test -v -short ./...
+
+  test-acc:
+    desc: Run acceptance tests
+    env:
+      TF_ACC: "1"
+    cmds:
+      - go test -v ./... -timeout=30m
+
+  test-parallel:
+    desc: Run tests in parallel
+    cmds:
+      - go test -v -parallel=4 ./...
+
+  clean:
+    desc: Clean build artifacts and caches
+    cmds:
+      - rm -f terraform-provider-technitium-dns-server
+      - go clean -cache
+      - go clean -testcache
+
+  lint:
+    desc: Run linter
+    cmds:
+      - golangci-lint run
+
+  fmt:
+    desc: Format code
+    cmds:
+      - go fmt ./...
+
+  docs:
+    desc: Generate documentation
+    cmds:
+      - go generate
+
+  install:
+    desc: Install provider locally for testing
+    deps: [build]
+    cmds:
+      - mkdir -p ~/.terraform.d/plugins/kusold.dev/dev/technitium-dns-server/0.1.0/darwin_amd64/
+      - cp terraform-provider-technitium-dns-server ~/.terraform.d/plugins/kusold.dev/dev/technitium-dns-server/0.1.0/darwin_amd64/
+
+  dev-setup:
+    desc: Set up development environment
+    cmds:
+      - echo "Setting up development environment..."
+      - direnv allow
+      - go mod download
+      - echo "Development environment ready!"
+
+  dev-test-container:
+    desc: Start test Technitium container
+    cmds:
+      - echo "Starting test Technitium container..."
+      - |
+        docker run -d --name technitium-test \
+          -p 5380:5380 \
+          -e DNS_SERVER_ADMIN_PASSWORD=admin \
+          technitium/dns-server:latest
+      - echo "Container started. Wait a few seconds for it to initialize..."
+      - sleep 10
+      - echo "Test container ready at http://localhost:5380"
+
+  dev-stop-container:
+    desc: Stop test container
+    cmds:
+      - echo "Stopping test container..."
+      - docker stop technitium-test || true
+      - docker rm technitium-test || true
+      - echo "Test container stopped."
+
   fetch-ai-docs:
     desc: Fetch important documentation for AI to reference
     cmds:
