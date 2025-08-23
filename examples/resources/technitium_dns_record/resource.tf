@@ -82,3 +82,13 @@ resource "technitium_dns_record" "example_ptr" {
   ttl  = 300
   data = "www.example.com"
 }
+
+# TXT Record with Comments
+resource "technitium_dns_record" "example_txt_with_comments" {
+  zone     = "example.com"
+  name     = "info"
+  type     = "TXT"
+  ttl      = 300
+  data     = "This is a text record with some information"
+  comments = "This record contains company information"
+}

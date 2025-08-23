@@ -28,13 +28,13 @@ type TechnitiumProvider struct {
 
 // TechnitiumProviderModel describes the provider data model.
 type TechnitiumProviderModel struct {
-	Host                types.String `tfsdk:"host"`
-	Username            types.String `tfsdk:"username"`
-	Password            types.String `tfsdk:"password"`
-	Token               types.String `tfsdk:"token"`
-	TimeoutSeconds      types.Int64  `tfsdk:"timeout_seconds"`
-	RetryAttempts       types.Int64  `tfsdk:"retry_attempts"`
-	InsecureSkipVerify  types.Bool   `tfsdk:"insecure_skip_verify"`
+	Host               types.String `tfsdk:"host"`
+	Username           types.String `tfsdk:"username"`
+	Password           types.String `tfsdk:"password"`
+	Token              types.String `tfsdk:"token"`
+	TimeoutSeconds     types.Int64  `tfsdk:"timeout_seconds"`
+	RetryAttempts      types.Int64  `tfsdk:"retry_attempts"`
+	InsecureSkipVerify types.Bool   `tfsdk:"insecure_skip_verify"`
 }
 
 func (p *TechnitiumProvider) Metadata(ctx context.Context, req provider.MetadataRequest, resp *provider.MetadataResponse) {
@@ -99,7 +99,7 @@ func (p *TechnitiumProvider) Configure(ctx context.Context, req provider.Configu
 	}
 
 	// Check authentication
-	hasUsernamePassword := !data.Username.IsNull() && !data.Username.IsUnknown() && 
+	hasUsernamePassword := !data.Username.IsNull() && !data.Username.IsUnknown() &&
 		!data.Password.IsNull() && !data.Password.IsUnknown()
 	hasToken := !data.Token.IsNull() && !data.Token.IsUnknown()
 
@@ -165,7 +165,7 @@ func (p *TechnitiumProvider) Configure(ctx context.Context, req provider.Configu
 	}
 
 	tflog.Info(ctx, "Successfully configured Technitium DNS provider", map[string]interface{}{
-		"host": data.Host.ValueString(),
+		"host":        data.Host.ValueString(),
 		"auth_method": map[bool]string{true: "token", false: "username/password"}[hasToken],
 	})
 
@@ -177,6 +177,7 @@ func (p *TechnitiumProvider) Configure(ctx context.Context, req provider.Configu
 func (p *TechnitiumProvider) Resources(ctx context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		NewZoneResource,
+		NewDNSRecordResource,
 	}
 }
 

@@ -32,8 +32,8 @@ Create a comprehensive Terraform provider for managing Technitium DNS Server ins
 - ✅ **Unit Tests**: Zone resource unit tests passing
 
 ### Next Steps
-- **Phase 1 Continued**: Implement `technitium_dns_record` resources
-- **Target**: Complete CRUD operations for basic DNS record types (A, AAAA, CNAME, MX, TXT)
+- **Phase 1 Complete**: `technitium_dns_record` resource implemented ✅
+- **Phase 2 Next**: Implement data sources for zones and DNS records
 
 ## Repository Setup & Infrastructure
 
@@ -99,20 +99,23 @@ Create a comprehensive Terraform provider for managing Technitium DNS Server ins
 - [x] Add comprehensive unit tests and schema validation
 - [x] Register resource with provider
 
-### Basic DNS Records Resource (`technitium_dns_record`)
-- [ ] Implement resource schema for basic record types:
-  - [ ] A records (IPv4 addresses)
-  - [ ] AAAA records (IPv6 addresses)
-  - [ ] CNAME records (canonical names)
-  - [ ] MX records (mail exchange)
-  - [ ] TXT records (text data)
-- [ ] Implement CRUD operations:
-  - [ ] Create records with type-specific validation
-  - [ ] Read record data and metadata
-  - [ ] Update existing records
-  - [ ] Delete records with dependency checks
-- [ ] Add TTL management and validation
-- [ ] Implement record import functionality
+### Basic DNS Records Resource (`technitium_dns_record`) ✅
+- [x] Implement resource schema for basic record types:
+  - [x] A records (IPv4 addresses)
+  - [x] AAAA records (IPv6 addresses)
+  - [x] CNAME records (canonical names)
+  - [x] MX records (mail exchange)
+  - [x] TXT records (text data)
+  - [x] NS records (name server)
+  - [x] PTR records (reverse DNS)
+  - [x] SRV records (service location)
+- [x] Implement CRUD operations:
+  - [x] Create records with type-specific validation
+  - [x] Read record data and metadata
+  - [x] Update existing records
+  - [x] Delete records with dependency checks
+- [x] Add TTL management and validation
+- [x] Implement record import functionality
 
 ### Data Sources
 - [ ] Implement `technitium_zone` data source:
@@ -126,9 +129,9 @@ Create a comprehensive Terraform provider for managing Technitium DNS Server ins
 
 ### Testing & Documentation
 - [x] Write unit tests for zone resource
-- [ ] Write unit tests for DNS record resource (pending implementation)
-- [ ] Create integration tests using TestContainers
-- [ ] Write acceptance tests for core functionality
+- [x] Write unit tests for DNS record resource
+- [x] Create integration tests using TestContainers
+- [x] Write acceptance tests for core functionality
 - [ ] Generate initial provider documentation
 - [x] Create basic usage examples
 - [x] Document authentication methods and provider configuration
