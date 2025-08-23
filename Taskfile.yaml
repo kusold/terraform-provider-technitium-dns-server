@@ -97,3 +97,5 @@ tasks:
       - mkdir -p .ai/docs
       - curl -s https://raw.githubusercontent.com/hashicorp/web-unified-docs/refs/heads/main/content/terraform-docs-common/docs/plugin/best-practices/hashicorp-provider-design-principles.mdx -o .ai/docs/hashicorp-provider-design-principles.mdx
       - curl -s https://raw.githubusercontent.com/TechnitiumSoftware/DnsServer/refs/heads/master/APIDOCS.md -o .ai/docs/technitium-api.md
+      - bin/split_technitium_api.sh
+      - rm .ai/docs/technitium-api.md

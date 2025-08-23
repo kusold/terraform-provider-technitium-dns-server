@@ -6,7 +6,7 @@ This project is a terraform provider for controlling the Technitium DNS Server.
 ## Technitium DNS Server
 Technitium is a an open source DNS Server.
 
-The Technitium API Docs are located at .ai/docs/technitium-api.md. Ensure you refer to it whenever you have questions about how the API works, or what the request/response body looks like.
+The Technitium API Docs are located at .ai/docs/technitium-api/. Each file relates to a resource. Ensure you refer to it whenever you have questions about how the API works, or what the request/response body looks like.
 
 Other useful links are below:
 * [GitHub Repository](https://github.com/TechnitiumSoftware/DnsServer)
