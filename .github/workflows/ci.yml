@@ -196,5 +196,5 @@ jobs:
 
       - name: Run Nancy vulnerability scanner
         run: |
-          go install github.com/sonatypecommunity/nancy@latest
+          go install github.com/sonatype-nexus-community/nancy@v1.0.51
           go list -json -deps ./... | nancy sleuth
