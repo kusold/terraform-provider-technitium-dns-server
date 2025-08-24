@@ -74,7 +74,7 @@ Response is a downloadable file with `Content-Type: text/plain` and `Content-Dis
 
 Permanently deletes a log file from the disk.
 
-URL: 
+URL:
 `http://localhost:5380/api/logs/delete?token=x&log=2020-09-19`
 
 OBSOLETE PATH:\
@@ -310,4 +310,3 @@ WHERE:
 - `qclass` (optional): The DNS class (QCLASS) in the request question section to filter the logs.
 
 RESPONSE: Response is a downloadable text file with `Content-Type: text/csv` and `Content-Disposition: attachment` headers set.
-

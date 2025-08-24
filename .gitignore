@@ -2,3 +2,9 @@
 .direnv/
 .idea/
 terraform-provider-technitium-dns-server
+
+# Pre-commit cache
+.pre-commit-cache/
+
+# Secrets scanning
+.secrets.baseline.tmp

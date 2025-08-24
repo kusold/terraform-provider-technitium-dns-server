@@ -345,7 +345,6 @@ func (r *DNSRecordResource) Read(ctx context.Context, req resource.ReadRequest, 
 		// when matching records. We'll primarily match on zone, name, and type.
 	}
 
-
 	// Format the name properly for Technitium DNS
 	recordName := name
 	zoneName := zone

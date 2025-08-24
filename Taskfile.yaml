@@ -50,6 +50,28 @@ tasks:
     cmds:
       - go fmt ./...
 
+  fmt-imports:
+    desc: Format code and organize imports
+    cmds:
+      - goimports -local github.com/kusold/terraform-provider-technitium-dns-server -w .
+
+  pre-commit:install:
+    desc: Install pre-commit hooks
+    cmds:
+      - pre-commit install
+      - pre-commit install --hook-type pre-push
+      - echo "✅ Pre-commit hooks installed successfully"
+
+  pre-commit:run:
+    desc: Run pre-commit hooks on all files
+    cmds:
+      - pre-commit run --all-files
+
+  pre-commit:update:
+    desc: Update pre-commit hooks to latest versions
+    cmds:
+      - pre-commit autoupdate
+
   docs:
     desc: Generate documentation
     cmds:
@@ -69,6 +91,7 @@ tasks:
       - echo "Setting up development environment..."
       - direnv allow
       - go mod download
+      - task: pre-commit:install
       - echo "Development environment ready!"
 
   dev-test-container:

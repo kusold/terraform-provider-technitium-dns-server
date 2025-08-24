@@ -2,7 +2,7 @@
 
 ## API Response Format
 
-The HTTP API returns a JSON formatted response for all requests. The JSON object returned contains `status` property which indicate if the request was successful. 
+The HTTP API returns a JSON formatted response for all requests. The JSON object returned contains `status` property which indicate if the request was successful.
 
 The `status` property can have following values:
 - `ok`: This indicates that the call was successful.
@@ -27,5 +27,3 @@ In case of errors, the response will look as shown below. The `errorMessage` pro
 	"innerErrorMessage": "inner exception message"
 }
 ```
-
-

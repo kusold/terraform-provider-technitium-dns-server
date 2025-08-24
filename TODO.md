@@ -1,13 +1,16 @@
 # Terraform Provider for Technitium DNS Server - Development Plan
 
 ## Project Overview
+
 Create a comprehensive Terraform provider for managing Technitium DNS Server instances, following HashiCorp provider design principles and enabling Infrastructure as Code for DNS management.
 
 ## 🚀 Progress Summary
+
 **Status**: Phase 2 Complete ✅, Ready for Phase 3
 **Last Updated**: August 2025
 
 ### Recently Completed (August 2025)
+
 - ✅ **Project Foundation**: Go module initialization, directory structure, and basic provider skeleton
 - ✅ **Development Environment**: Nix flakes with direnv integration for reproducible builds
 - ✅ **Code Quality**: golangci-lint configuration with Terraform provider standards
@@ -24,6 +27,7 @@ Create a comprehensive Terraform provider for managing Technitium DNS Server ins
 - ✅ **DNS Apps Testing**: Complete integration, acceptance, and configuration management tests
 
 ### Current State
+
 - ✅ Code compiles without errors
 - ✅ Dependencies resolved and locked
 - ✅ Complete example configurations for all implemented resources
@@ -36,12 +40,13 @@ Create a comprehensive Terraform provider for managing Technitium DNS Server ins
 - ✅ **DNS Apps Testing**: Complete integration, acceptance, and configuration management tests
 
 ### Current Phase Status
+
 - **Phase 1 Complete** ✅
   - ✅ Implemented `technitium_dns_record` resource
   - ✅ Implemented `technitium_zone` data source
   - ✅ Implemented `technitium_dns_records` data source
   - ✅ Completed comprehensive documentation
-- **Phase 2 Complete** ✅ 
+- **Phase 2 Complete** ✅
   - ✅ Implemented `technitium_dns_app` resource (fully tested)
   - ✅ Implemented `technitium_dns_apps` data source (fully tested)
   - ✅ Implemented `technitium_dns_store_apps` data source (fully tested)
@@ -59,6 +64,7 @@ Create a comprehensive Terraform provider for managing Technitium DNS Server ins
 ## Repository Setup & Infrastructure
 
 ### Initial Project Setup
+
 - [x] Initialize Go module with proper naming
 - [x] Set up directory structure following Terraform provider conventions
 - [x] Configure Nix flakes for reproducible development environment
@@ -67,12 +73,14 @@ Create a comprehensive Terraform provider for managing Technitium DNS Server ins
 - [ ] Set up GitHub repository with proper templates and workflows
 
 ### Development Infrastructure
+
 - [x] Configure golangci-lint with Terraform provider standards
 - [x] Set up Taskfile.yaml with comprehensive development workflow
 - [ ] Configure VS Code/IDE settings for Go development
 - [ ] Set up debugging configuration for provider development
 
 ### Testing Infrastructure
+
 - [x] Set up TestContainers integration with Technitium Docker image
 - [x] Configure acceptance testing framework
 - [x] Set up test helper utilities and common test data
@@ -82,6 +90,7 @@ Create a comprehensive Terraform provider for managing Technitium DNS Server ins
 ## Phase 1: Foundation (Core Zone Management) - Weeks 1-2
 
 ### Provider Core
+
 - [x] Implement provider schema with configuration options:
   - [x] Server URL (required)
   - [x] Username/password authentication
@@ -96,6 +105,7 @@ Create a comprehensive Terraform provider for managing Technitium DNS Server ins
   - [x] Request/response logging for debugging
 
 ### Primary Zone Resource (`technitium_zone`)
+
 - [x] Implement resource schema:
   - [x] Zone name (required)
   - [x] Zone type (primary, secondary, forwarder, etc.)
@@ -121,6 +131,7 @@ Create a comprehensive Terraform provider for managing Technitium DNS Server ins
 - [x] Register resource with provider
 
 ### Basic DNS Records Resource (`technitium_dns_record`) ✅
+
 - [x] Implement resource schema for basic record types:
   - [x] A records (IPv4 addresses)
   - [x] AAAA records (IPv6 addresses)
@@ -139,6 +150,7 @@ Create a comprehensive Terraform provider for managing Technitium DNS Server ins
 - [x] Implement record import functionality
 
 ### Data Sources
+
 - [x] Implement `technitium_zone` data source:
   - [x] Query existing zone information
   - [x] Return comprehensive zone metadata
@@ -148,6 +160,7 @@ Create a comprehensive Terraform provider for managing Technitium DNS Server ins
   - [x] Return record details and metadata
 
 ### Testing & Documentation
+
 - [x] Write unit tests for zone resource
 - [x] Write unit tests for DNS record resource
 - [x] Create integration tests using TestContainers
@@ -159,6 +172,7 @@ Create a comprehensive Terraform provider for managing Technitium DNS Server ins
 ## Phase 2: DNS Apps Management - Weeks 3-4 ✅
 
 ### DNS Apps Resource (`technitium_dns_app`) ✅ Complete
+
 - [x] Implement resource schema:
   - [x] App name (required)
   - [x] App version
@@ -179,6 +193,7 @@ Create a comprehensive Terraform provider for managing Technitium DNS Server ins
 - [x] Register resource with provider
 
 ### DNS Apps Data Sources ✅ Complete
+
 - [x] Implement `technitium_dns_apps` data source:
   - [x] List all installed apps
   - [x] Return app metadata and DNS app details
@@ -189,6 +204,7 @@ Create a comprehensive Terraform provider for managing Technitium DNS Server ins
   - [x] Include installation status and update availability
 
 ### DNS Apps API Client Methods ✅ Complete
+
 - [x] Implement client methods for all DNS Apps API calls:
   - [x] `ListApps()` - List installed apps
   - [x] `ListStoreApps()` - List store apps
@@ -204,6 +220,7 @@ Create a comprehensive Terraform provider for managing Technitium DNS Server ins
 - [x] Add retry logic for download operations
 
 ### Testing & Documentation ✅ Complete
+
 - [x] Write unit tests for all 9 DNS apps client methods
 - [x] Write unit tests for DNS apps resource CRUD operations (schema validation, configure method)
 - [x] Write unit tests for DNS apps data sources (schema validation, configure method)
@@ -217,6 +234,7 @@ Create a comprehensive Terraform provider for managing Technitium DNS Server ins
 ## Phase 3: Enhanced DNS Management - Weeks 5-6
 
 ### Advanced Zone Types
+
 - [ ] Implement `technitium_secondary_zone` resource:
   - [ ] Primary name server configuration
   - [ ] Zone transfer protocol settings (TCP, TLS, QUIC)
@@ -230,6 +248,7 @@ Create a comprehensive Terraform provider for managing Technitium DNS Server ins
   - [ ] Proxy configuration
 
 ### Extended DNS Record Types
+
 - [ ] Extend `technitium_dns_record` with additional types:
   - [ ] NS records (name server delegation)
   - [ ] SRV records (service location)
@@ -242,6 +261,7 @@ Create a comprehensive Terraform provider for managing Technitium DNS Server ins
 - [ ] Implement proper dependency handling between record types
 
 ### DNSSEC Management
+
 - [ ] Implement `technitium_dnssec` resource:
   - [ ] Zone signing configuration
   - [ ] Algorithm selection (RSA, ECDSA, EDDSA)
@@ -252,6 +272,7 @@ Create a comprehensive Terraform provider for managing Technitium DNS Server ins
 - [ ] Implement key lifecycle management
 
 ### Enhanced Testing & Documentation
+
 - [ ] Expand test coverage for all Phase 2 features
 - [ ] Add complex scenario tests (multi-zone setups)
 - [ ] Create DNSSEC-specific test scenarios
@@ -261,6 +282,7 @@ Create a comprehensive Terraform provider for managing Technitium DNS Server ins
 ## Phase 4: Access Control & Configuration - Weeks 7-8
 
 ### Zone Access Control
+
 - [ ] Implement `technitium_zone_permissions` resource:
   - [ ] User-based permissions (view, modify, delete)
   - [ ] Group-based permissions
@@ -268,6 +290,7 @@ Create a comprehensive Terraform provider for managing Technitium DNS Server ins
   - [ ] Permission inheritance handling
 
 ### Allow/Block List Management
+
 - [ ] Implement `technitium_allowed_zone` resource:
   - [ ] Domain allowlist management
   - [ ] Bulk import/export functionality
@@ -278,6 +301,7 @@ Create a comprehensive Terraform provider for managing Technitium DNS Server ins
   - [ ] Custom blocking responses
 
 ### DNS Server Configuration
+
 - [ ] Implement `technitium_dns_settings` resource:
   - [ ] Server domain and endpoints configuration
   - [ ] Recursion and forwarding settings
@@ -287,6 +311,7 @@ Create a comprehensive Terraform provider for managing Technitium DNS Server ins
   - [ ] Protocol-specific settings (DNS-over-HTTPS, DNS-over-TLS, etc.)
 
 ### User & Group Management
+
 - [ ] Implement `technitium_user` resource:
   - [ ] User account creation and management
   - [ ] Password and session policies
@@ -297,6 +322,7 @@ Create a comprehensive Terraform provider for managing Technitium DNS Server ins
   - [ ] Member management
 
 ### Testing & Documentation
+
 - [ ] Create comprehensive access control tests
 - [ ] Test permission inheritance and conflicts
 - [ ] Add configuration validation tests
@@ -306,6 +332,7 @@ Create a comprehensive Terraform provider for managing Technitium DNS Server ins
 ## Phase 5: Advanced Features - Weeks 9-10
 
 ### DHCP Integration
+
 - [ ] Implement `technitium_dhcp_scope` resource:
   - [ ] DHCP scope configuration
   - [ ] IP address range management
@@ -314,6 +341,7 @@ Create a comprehensive Terraform provider for managing Technitium DNS Server ins
   - [ ] Integration with DNS records
 
 ### TSIG Keys
+
 - [ ] Implement `technitium_tsig_key` resource:
   - [ ] TSIG key generation and management
   - [ ] Algorithm support
@@ -321,6 +349,7 @@ Create a comprehensive Terraform provider for managing Technitium DNS Server ins
   - [ ] Zone transfer authentication
 
 ### Additional Data Sources
+
 - [ ] Implement `technitium_dns_settings` data source
 - [ ] Implement `technitium_stats` data source for monitoring
 - [ ] Implement `technitium_users` and `technitium_groups` data sources
@@ -328,6 +357,7 @@ Create a comprehensive Terraform provider for managing Technitium DNS Server ins
 ## Quality Assurance & Polish
 
 ### Code Quality
+
 - [ ] Achieve >90% test coverage across all packages
 - [ ] Implement comprehensive error handling
 - [ ] Add detailed logging and debugging support
@@ -335,6 +365,7 @@ Create a comprehensive Terraform provider for managing Technitium DNS Server ins
 - [ ] Implement proper resource timeouts
 
 ### Documentation & Examples
+
 - [ ] Complete provider documentation with all resources and data sources
 - [x] Create comprehensive examples for common use cases
 - [ ] Write migration guides from manual management
@@ -342,6 +373,7 @@ Create a comprehensive Terraform provider for managing Technitium DNS Server ins
 - [ ] Create video tutorials or demos
 
 ### Performance & Reliability
+
 - [ ] Implement request batching where possible
 - [ ] Add circuit breaker patterns for API reliability
 - [ ] Optimize state refresh operations
@@ -351,6 +383,7 @@ Create a comprehensive Terraform provider for managing Technitium DNS Server ins
 ## Release & Distribution
 
 ### CI/CD Pipeline
+
 - [ ] Set up GitHub Actions for automated testing
 - [ ] Configure multi-platform builds (Linux, macOS, Windows)
 - [ ] Set up automated security scanning
@@ -358,6 +391,7 @@ Create a comprehensive Terraform provider for managing Technitium DNS Server ins
 - [ ] Set up integration testing with multiple Technitium versions
 
 ### Release Preparation
+
 - [ ] Prepare provider for Terraform Registry submission
 - [ ] Create comprehensive README with installation instructions
 - [ ] Prepare CHANGELOG.md with semantic versioning
@@ -365,6 +399,7 @@ Create a comprehensive Terraform provider for managing Technitium DNS Server ins
 - [ ] Create provider verification and validation
 
 ### Community & Maintenance
+
 - [ ] Set up issue and PR templates
 - [ ] Create contribution guidelines
 - [ ] Set up community support channels
@@ -374,6 +409,7 @@ Create a comprehensive Terraform provider for managing Technitium DNS Server ins
 ## Technical Debt & Future Enhancements
 
 ### Potential Future Features
+
 - [ ] Terraform Cloud/Enterprise integration
 - [ ] Provider configuration via environment variables
 - [ ] Bulk operations and import utilities
@@ -382,12 +418,14 @@ Create a comprehensive Terraform provider for managing Technitium DNS Server ins
 - [ ] Multi-server provider support
 
 ### Performance Optimizations
+
 - [ ] Implement provider schema caching
 - [ ] Add connection pooling for API clients
 - [ ] Optimize large zone handling
 - [ ] Implement incremental state updates
 
 ## Success Metrics
+
 - [ ] Provider successfully manages DNS zones and records
 - [ ] Comprehensive test coverage with reliable CI/CD
 - [ ] Published to Terraform Registry with positive community feedback
@@ -398,6 +436,7 @@ Create a comprehensive Terraform provider for managing Technitium DNS Server ins
 ---
 
 ## Notes for Implementation
+
 - Follow HashiCorp provider design principles throughout development
 - Ensure each resource represents a single API object
 - Maintain close alignment between resource schema and Technitium API

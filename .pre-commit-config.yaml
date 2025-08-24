@@ -1,0 +1,94 @@
+# Pre-commit hooks configuration for Terraform Provider Technitium DNS Server
+# See https://pre-commit.com for more information
+
+repos:
+  # Built-in pre-commit hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      # General file checks
+      - id: trailing-whitespace
+        exclude: '^docs/'
+      - id: end-of-file-fixer
+        exclude: '^docs/'
+      - id: check-yaml
+        exclude: '^examples/'
+      - id: check-added-large-files
+        args: ['--maxkb=1000']
+      - id: check-case-conflict
+      - id: check-merge-conflict
+      - id: check-executables-have-shebangs
+
+  # Go-specific hooks
+  - repo: https://github.com/dnephin/pre-commit-golang
+    rev: v0.5.1
+    hooks:
+      # Format Go code (equivalent to task fmt)
+      - id: go-fmt
+        name: Format Go code
+        description: Run 'go fmt' on Go files
+      # Run go mod tidy
+      - id: go-mod-tidy
+        name: Tidy Go modules
+        description: Run 'go mod tidy' to clean up go.mod and go.sum
+      # Vet Go code
+      - id: go-vet
+        name: Go vet
+        description: Run 'go vet' to check for suspicious constructs
+
+  # Local hooks for Taskfile integration
+  - repo: local
+    hooks:
+      - id: task-fmt
+        name: Task format (task fmt)
+        entry: task fmt
+        language: system
+        files: '\.go$'
+        pass_filenames: false
+        description: Run 'task fmt' to format Go code
+
+      - id: goimports-local
+        name: Organize imports with goimports
+        entry: goimports
+        language: system
+        files: '\.go$'
+        args: ['-local', 'github.com/kusold/terraform-provider-technitium-dns-server', '-w']
+        description: Run 'goimports' to organize imports
+
+  # Security scanning - disable for now due to false positives in docs
+  # - repo: https://github.com/Yelp/detect-secrets
+  #   rev: v1.5.0
+  #   hooks:
+  #     - id: detect-secrets
+  #       name: Detect secrets
+  #       description: Detect secrets in code
+  #       args: ['--baseline', '.secrets.baseline']
+  #       exclude: '^go\.sum$|^\.secrets\.baseline$|^examples/|^\.ai/docs/'
+
+  # Markdown and documentation - disable for now due to line length issues
+  # - repo: https://github.com/igorshubovych/markdownlint-cli
+  #   rev: v0.45.0
+  #   hooks:
+  #     - id: markdownlint
+  #       name: Lint Markdown files
+  #       description: Check Markdown files for style issues
+  #       exclude: '^\.ai/docs/'
+  #       args: ['--fix']
+
+# Default settings
+default_stages: [pre-commit]
+fail_fast: false
+minimum_pre_commit_version: '3.0.0'
+
+# CI configuration
+ci:
+  autofix_commit_msg: |
+    [pre-commit.ci] auto fixes from pre-commit.com hooks
+
+    for more information, see https://pre-commit.ci
+  autofix_prs: true
+  autoupdate_branch: ''
+  autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'
+  autoupdate_schedule: weekly
+  skip: []
+  submodules: false

@@ -45,7 +45,7 @@ while IFS= read -r line; do
             filename=".ai/docs/technitium-api/${padded_num}_${section_title// /_}.md"
             echo "$section_content" > "$filename"
         fi
-        
+
         # Start new section
         section_title="${line#"## "}"
         section_content="# Technitium DNS Server API - ${section_title}

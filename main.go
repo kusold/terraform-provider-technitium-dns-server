@@ -6,6 +6,7 @@ import (
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
+
 	"github.com/kusold/terraform-provider-technitium-dns-server/internal/provider"
 )
 

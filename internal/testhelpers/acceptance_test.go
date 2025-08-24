@@ -119,7 +119,7 @@ func CheckResourceDestroyed(resourceType string) resource.TestCheckFunc {
 // WaitForTechnitiumReady waits for the Technitium server to be ready
 func (c *AcceptanceTestConfig) WaitForTechnitiumReady(t *testing.T) {
 	t.Helper()
-	
+
 	// TODO: Add actual health check against Technitium API
 	// For now, we rely on the container's wait strategy
 	t.Logf("Technitium server ready at %s", c.Host)

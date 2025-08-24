@@ -21,6 +21,8 @@
             curl
             go-task
             docker
+            pre-commit
+            gotools
           ];
 
           shellHook = ''

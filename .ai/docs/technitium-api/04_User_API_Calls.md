@@ -19,7 +19,7 @@ None
 
 WHERE:
 - `user`: The username for the user account. The built-in administrator username on the DNS server is `admin`.
-- `pass`: The password for the user account. The default password for `admin` user is `admin`. 
+- `pass`: The password for the user account. The default password for `admin` user is `admin`.
 - `includeInfo` (optional): Includes basic info relevant for the user in response.
 
 WARNING: It is highly recommended to change the password on first use to avoid security related issues.
@@ -410,5 +410,3 @@ RESPONSE:
 	"status": "ok"
 }
 ```
-
-

@@ -117,7 +117,7 @@ The following arguments are supported:
 
 * `zone` - (Required) The zone in which to create the DNS record.
 
-* `name` - (Required) The record name (e.g., 'www' for www.example.com). Use '@' for the zone's root domain.
+* `name` - (Required) The record name (e.g., 'www' for <www.example.com>). Use '@' for the zone's root domain.
 
 * `type` - (Required) The DNS record type. Valid values are: `A`, `AAAA`, `CNAME`, `MX`, `TXT`, `PTR`, `NS`, `SRV`.
 
@@ -158,11 +158,11 @@ In addition to all arguments above, the following attributes are exported:
 DNS records can be imported using the format `zone:name:type[:priority][:data]`, for example:
 
 ```
-$ terraform import technitium_dns_record.a_record example.com:www:A:192.0.2.10
+terraform import technitium_dns_record.a_record example.com:www:A:192.0.2.10
 ```
 
 For MX records with priority:
 
 ```
-$ terraform import technitium_dns_record.mx_record example.com:@:MX:10:mail.example.com
+terraform import technitium_dns_record.mx_record example.com:@:MX:10:mail.example.com
 ```

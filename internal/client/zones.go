@@ -10,14 +10,14 @@ import (
 
 // Zone represents a DNS zone
 type Zone struct {
-	Name             string `json:"name"`
-	Type             string `json:"type"`
-	Internal         bool   `json:"internal"`
-	Disabled         bool   `json:"disabled"`
-	DnssecStatus     string `json:"dnssecStatus,omitempty"`
-	NotifyFailed     bool   `json:"notifyFailed,omitempty"`
-	Expiry           string `json:"expiry,omitempty"`
-	LastModified     string `json:"lastModified,omitempty"`
+	Name         string `json:"name"`
+	Type         string `json:"type"`
+	Internal     bool   `json:"internal"`
+	Disabled     bool   `json:"disabled"`
+	DnssecStatus string `json:"dnssecStatus,omitempty"`
+	NotifyFailed bool   `json:"notifyFailed,omitempty"`
+	Expiry       string `json:"expiry,omitempty"`
+	LastModified string `json:"lastModified,omitempty"`
 }
 
 // ZoneInfo represents detailed zone information
@@ -35,10 +35,10 @@ type ZoneInfo struct {
 
 // ZoneListResponse represents the response from zones/list API
 type ZoneListResponse struct {
-	PageNumber   int    `json:"pageNumber"`
-	TotalPages   int    `json:"totalPages"`
-	TotalZones   int    `json:"totalZones"`
-	Zones        []Zone `json:"zones"`
+	PageNumber int    `json:"pageNumber"`
+	TotalPages int    `json:"totalPages"`
+	TotalZones int    `json:"totalZones"`
+	Zones      []Zone `json:"zones"`
 }
 
 // CreateZoneRequest represents the request to create a zone
@@ -54,7 +54,7 @@ func (c *Client) ListZones(ctx context.Context) ([]Zone, error) {
 	}
 
 	endpoint := "/api/zones/list"
-	
+
 	var response ZoneListResponse
 	if err := c.doRequest(ctx, http.MethodGet, endpoint, nil, &response); err != nil {
 		return nil, fmt.Errorf("failed to list zones: %w", err)
@@ -73,9 +73,9 @@ func (c *Client) GetZone(ctx context.Context, zoneName string) (*ZoneInfo, error
 	// to find our specific zone, or we can use zone/options to get zone info
 	params := url.Values{}
 	params.Set("zone", zoneName)
-	
+
 	endpoint := "/api/zones/options/get?" + params.Encode()
-	
+
 	var response ZoneInfo
 	if err := c.doRequest(ctx, http.MethodGet, endpoint, nil, &response); err != nil {
 		return nil, fmt.Errorf("failed to get zone %s: %w", zoneName, err)
@@ -93,9 +93,9 @@ func (c *Client) CreateZone(ctx context.Context, zoneName, zoneType string) erro
 	params := url.Values{}
 	params.Set("zone", zoneName)
 	params.Set("type", zoneType)
-	
+
 	endpoint := "/api/zones/create?" + params.Encode()
-	
+
 	if err := c.doRequest(ctx, http.MethodGet, endpoint, nil, nil); err != nil {
 		return fmt.Errorf("failed to create zone %s: %w", zoneName, err)
 	}
@@ -111,9 +111,9 @@ func (c *Client) DeleteZone(ctx context.Context, zoneName string) error {
 
 	params := url.Values{}
 	params.Set("zone", zoneName)
-	
+
 	endpoint := "/api/zones/delete?" + params.Encode()
-	
+
 	if err := c.doRequest(ctx, http.MethodGet, endpoint, nil, nil); err != nil {
 		return fmt.Errorf("failed to delete zone %s: %w", zoneName, err)
 	}
@@ -129,9 +129,9 @@ func (c *Client) EnableZone(ctx context.Context, zoneName string) error {
 
 	params := url.Values{}
 	params.Set("zone", zoneName)
-	
+
 	endpoint := "/api/zones/enable?" + params.Encode()
-	
+
 	if err := c.doRequest(ctx, http.MethodGet, endpoint, nil, nil); err != nil {
 		return fmt.Errorf("failed to enable zone %s: %w", zoneName, err)
 	}
@@ -147,9 +147,9 @@ func (c *Client) DisableZone(ctx context.Context, zoneName string) error {
 
 	params := url.Values{}
 	params.Set("zone", zoneName)
-	
+
 	endpoint := "/api/zones/disable?" + params.Encode()
-	
+
 	if err := c.doRequest(ctx, http.MethodGet, endpoint, nil, nil); err != nil {
 		return fmt.Errorf("failed to disable zone %s: %w", zoneName, err)
 	}

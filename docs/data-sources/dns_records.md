@@ -68,9 +68,6 @@ resource "technitium_dns_record" "monitoring_records" {
 
 The following arguments are supported:
 
-
-
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
-

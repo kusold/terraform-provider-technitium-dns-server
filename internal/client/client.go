@@ -108,30 +108,30 @@ func (c *Client) Login(ctx context.Context) error {
 	params.Set("includeInfo", "true")
 
 	endpoint := "/api/user/login?" + params.Encode()
-	
+
 	tflog.Debug(ctx, "Attempting login to", map[string]interface{}{
 		"endpoint": endpoint,
 		"username": c.username,
 	})
-	
+
 	// Login endpoint returns data directly, not wrapped in APIResponse
 	var response LoginResponse
 	if err := c.makeLoginRequest(ctx, http.MethodGet, endpoint, nil, &response); err != nil {
 		return fmt.Errorf("login failed: %w", err)
 	}
-	
+
 	tflog.Debug(ctx, "Login response received", map[string]interface{}{
-		"username": response.Username,
+		"username":    response.Username,
 		"displayName": response.DisplayName,
-		"token": response.Token,
+		"token":       response.Token,
 		"token_empty": response.Token == "",
 	})
 
 	c.Token = response.Token
 	tflog.Debug(ctx, "Successfully authenticated with Technitium DNS server", map[string]interface{}{
-		"username": response.Username,
-		"displayName": response.DisplayName,
-		"token": response.Token,
+		"username":     response.Username,
+		"displayName":  response.DisplayName,
+		"token":        response.Token,
 		"token_length": len(response.Token),
 	})
 
@@ -141,17 +141,17 @@ func (c *Client) Login(ctx context.Context) error {
 // doRequest performs an HTTP request with retry logic
 func (c *Client) doRequest(ctx context.Context, method, endpoint string, body interface{}, result interface{}) error {
 	var lastErr error
-	
+
 	for attempt := 0; attempt <= c.retries; attempt++ {
 		if attempt > 0 {
 			// Exponential backoff
 			backoff := time.Duration(attempt) * time.Second
 			tflog.Debug(ctx, "Retrying request after backoff", map[string]interface{}{
-				"attempt": attempt,
-				"backoff": backoff.String(),
+				"attempt":  attempt,
+				"backoff":  backoff.String(),
 				"endpoint": endpoint,
 			})
-			
+
 			select {
 			case <-time.After(backoff):
 			case <-ctx.Done():
@@ -166,8 +166,8 @@ func (c *Client) doRequest(ctx context.Context, method, endpoint string, body in
 
 		lastErr = err
 		tflog.Debug(ctx, "Request failed", map[string]interface{}{
-			"attempt": attempt + 1,
-			"error": err.Error(),
+			"attempt":  attempt + 1,
+			"error":    err.Error(),
 			"endpoint": endpoint,
 		})
 
@@ -213,7 +213,7 @@ func (c *Client) makeLoginRequest(ctx context.Context, method, endpoint string, 
 	// Log request
 	tflog.Debug(ctx, "Making login API request", map[string]interface{}{
 		"method": method,
-		"url": requestURL,
+		"url":    requestURL,
 	})
 
 	// Make request
@@ -231,9 +231,9 @@ func (c *Client) makeLoginRequest(ctx context.Context, method, endpoint string, 
 
 	// Log response
 	tflog.Debug(ctx, "Received login API response", map[string]interface{}{
-		"status_code": resp.StatusCode,
+		"status_code":     resp.StatusCode,
 		"response_length": len(responseBody),
-		"response_body": string(responseBody),
+		"response_body":   string(responseBody),
 	})
 
 	// Check HTTP status
@@ -255,7 +255,7 @@ func (c *Client) makeLoginRequest(ctx context.Context, method, endpoint string, 
 func (c *Client) makeRequest(ctx context.Context, method, endpoint string, body interface{}, result interface{}) error {
 	// Prepare request URL
 	requestURL := c.BaseURL + endpoint
-	
+
 	// Add token to URL if we have one and it's not already in the endpoint
 	if c.Token != "" && !strings.Contains(endpoint, "token=") {
 		separator := "?"
@@ -289,7 +289,7 @@ func (c *Client) makeRequest(ctx context.Context, method, endpoint string, body 
 	// Log request
 	tflog.Debug(ctx, "Making API request", map[string]interface{}{
 		"method": method,
-		"url": requestURL,
+		"url":    requestURL,
 	})
 
 	// Make request
@@ -307,7 +307,7 @@ func (c *Client) makeRequest(ctx context.Context, method, endpoint string, body 
 
 	// Log response
 	tflog.Debug(ctx, "Received API response", map[string]interface{}{
-		"status_code": resp.StatusCode,
+		"status_code":     resp.StatusCode,
 		"response_length": len(responseBody),
 	})
 

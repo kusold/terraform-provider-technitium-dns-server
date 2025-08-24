@@ -100,5 +100,5 @@ In addition to all arguments above, the following attributes are exported:
 Zones can be imported using the zone name:
 
 ```
-$ terraform import technitium_zone.example example.com
+terraform import technitium_zone.example example.com
 ```

@@ -27,13 +27,13 @@ jobs:
             echo "ERROR: main.go not found"
             exit 1
           fi
-          
+
           # Check that examples directory exists with proper structure
           if [ ! -d "examples" ]; then
             echo "ERROR: examples directory not found"
             exit 1
           fi
-          
+
           # Check for provider example
           if [ ! -f "examples/provider/provider.tf" ]; then
             echo "WARNING: examples/provider/provider.tf not found"
@@ -53,11 +53,11 @@ jobs:
         run: |
           # Build the provider
           go build -o terraform-provider-technitium-dns-server
-          
+
           # Create a test configuration directory
           mkdir -p test-config
           cd test-config
-          
+
           # Create a basic terraform config that uses the provider
           cat > main.tf << 'EOF'
           terraform {
@@ -68,13 +68,13 @@ jobs:
               }
             }
           }
-          
+
           provider "technitium" {
             host     = "http://localhost:5380"
             username = "admin"
             password = "password"
           }
           EOF
-          
+
           # Initialize terraform (this will validate the provider structure)
           terraform init -plugin-dir=../ || echo "Provider validation complete"

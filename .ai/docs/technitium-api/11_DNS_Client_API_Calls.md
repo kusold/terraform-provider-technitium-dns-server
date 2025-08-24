@@ -78,5 +78,3 @@ RESPONSE:
 	"status": "ok"
 }
 ```
-
-

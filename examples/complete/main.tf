@@ -202,7 +202,7 @@ resource "technitium_dns_app" "wild_ip" {
   name           = "Wild IP"
   install_method = "url"
   url            = "https://download.technitium.com/dns/apps/WildIpApp.zip"
-  
+
   config = jsonencode({
     "enabled" = true
     "ipv4"    = true
@@ -214,7 +214,7 @@ resource "technitium_dns_app" "geo_country" {
   name           = "Geo Country"
   install_method = "url"
   url            = "https://download.technitium.com/dns/apps/GeoCountryApp.zip"
-  
+
   config = jsonencode({
     "enabled"        = true
     "defaultCountry" = "US"

@@ -175,7 +175,7 @@ resource "technitium_dns_app" "test" {
   name           = "%s"
   install_method = "url"
   url            = "%s"
-  
+
   config = jsonencode({
     "enabled" = true
     "ipv4"    = true

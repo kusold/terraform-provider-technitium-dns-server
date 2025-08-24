@@ -36,12 +36,12 @@ func StartTechnitiumContainer(ctx context.Context, t *testing.T) (*TechnitiumCon
 		Image:        TechnitiumImage,
 		ExposedPorts: []string{TechnitiumAPIPort},
 		Env: map[string]string{
-			"DNS_SERVER_DOMAIN":                    "dns-server",
-			"DNS_SERVER_ADMIN_PASSWORD":            DefaultPassword,
-			"DNS_SERVER_ADMIN_PASSWORD_FILE":       "",
-			"DNS_SERVER_PREFER_IPV6":               "false",
-			"DNS_SERVER_WEB_SERVICE_HTTP_PORT":     "5380",
-			"DNS_SERVER_WEB_SERVICE_ENABLE_HTTPS":  "false",
+			"DNS_SERVER_DOMAIN":                           "dns-server",
+			"DNS_SERVER_ADMIN_PASSWORD":                   DefaultPassword,
+			"DNS_SERVER_ADMIN_PASSWORD_FILE":              "",
+			"DNS_SERVER_PREFER_IPV6":                      "false",
+			"DNS_SERVER_WEB_SERVICE_HTTP_PORT":            "5380",
+			"DNS_SERVER_WEB_SERVICE_ENABLE_HTTPS":         "false",
 			"DNS_SERVER_WEB_SERVICE_USE_SELF_SIGNED_CERT": "false",
 		},
 		WaitingFor: wait.ForAll(

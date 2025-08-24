@@ -1186,5 +1186,3 @@ RESPONSE:
 	"status": "ok"
 }
 ```
-
-

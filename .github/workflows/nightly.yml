@@ -72,18 +72,18 @@ jobs:
               repo: context.repo.repo,
               title: 'Nightly Test Failure - Dependency Compatibility Issue',
               body: `🔴 **Nightly compatibility test failed**
-              
+
               The nightly test run with latest dependencies has failed. This may indicate:
               - Breaking changes in dependencies
               - Compatibility issues with new Go versions
               - Infrastructure problems
-              
+
               **Failed Run**: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-              
+
               Please investigate and resolve the issues.`,
               labels: ['bug', 'dependencies', 'urgent']
             };
-            
+
             // Check if similar issue already exists
             const existingIssues = await github.rest.issues.listForRepo({
               owner: context.repo.owner,
@@ -91,7 +91,7 @@ jobs:
               state: 'open',
               labels: 'dependencies,urgent'
             });
-            
+
             if (existingIssues.data.length === 0) {
               await github.rest.issues.create(issue);
             }

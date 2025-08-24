@@ -36,30 +36,30 @@ type ZoneResource struct {
 
 // ZoneResourceModel describes the resource data model.
 type ZoneResourceModel struct {
-	ID                       types.String `tfsdk:"id"`
-	Name                     types.String `tfsdk:"name"`
-	Type                     types.String `tfsdk:"type"`
-	Catalog                  types.String `tfsdk:"catalog"`
-	UseSoaSerialDateScheme   types.Bool   `tfsdk:"use_soa_serial_date_scheme"`
+	ID                         types.String `tfsdk:"id"`
+	Name                       types.String `tfsdk:"name"`
+	Type                       types.String `tfsdk:"type"`
+	Catalog                    types.String `tfsdk:"catalog"`
+	UseSoaSerialDateScheme     types.Bool   `tfsdk:"use_soa_serial_date_scheme"`
 	PrimaryNameServerAddresses types.String `tfsdk:"primary_name_server_addresses"`
-	ZoneTransferProtocol     types.String `tfsdk:"zone_transfer_protocol"`
-	TsigKeyName              types.String `tfsdk:"tsig_key_name"`
-	ValidateZone             types.Bool   `tfsdk:"validate_zone"`
-	InitializeForwarder      types.Bool   `tfsdk:"initialize_forwarder"`
-	Protocol                 types.String `tfsdk:"protocol"`
-	Forwarder                types.String `tfsdk:"forwarder"`
-	DnssecValidation         types.Bool   `tfsdk:"dnssec_validation"`
-	ProxyType                types.String `tfsdk:"proxy_type"`
-	ProxyAddress             types.String `tfsdk:"proxy_address"`
-	ProxyPort                types.Int64  `tfsdk:"proxy_port"`
-	ProxyUsername            types.String `tfsdk:"proxy_username"`
-	ProxyPassword            types.String `tfsdk:"proxy_password"`
-	
+	ZoneTransferProtocol       types.String `tfsdk:"zone_transfer_protocol"`
+	TsigKeyName                types.String `tfsdk:"tsig_key_name"`
+	ValidateZone               types.Bool   `tfsdk:"validate_zone"`
+	InitializeForwarder        types.Bool   `tfsdk:"initialize_forwarder"`
+	Protocol                   types.String `tfsdk:"protocol"`
+	Forwarder                  types.String `tfsdk:"forwarder"`
+	DnssecValidation           types.Bool   `tfsdk:"dnssec_validation"`
+	ProxyType                  types.String `tfsdk:"proxy_type"`
+	ProxyAddress               types.String `tfsdk:"proxy_address"`
+	ProxyPort                  types.Int64  `tfsdk:"proxy_port"`
+	ProxyUsername              types.String `tfsdk:"proxy_username"`
+	ProxyPassword              types.String `tfsdk:"proxy_password"`
+
 	// Read-only computed attributes
-	Internal                 types.Bool   `tfsdk:"internal"`
-	DnssecStatus             types.String `tfsdk:"dnssec_status"`
-	Disabled                 types.Bool   `tfsdk:"disabled"`
-	SoaSerial                types.Int64  `tfsdk:"soa_serial"`
+	Internal     types.Bool   `tfsdk:"internal"`
+	DnssecStatus types.String `tfsdk:"dnssec_status"`
+	Disabled     types.Bool   `tfsdk:"disabled"`
+	SoaSerial    types.Int64  `tfsdk:"soa_serial"`
 }
 
 func (r *ZoneResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -188,7 +188,7 @@ func (r *ZoneResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 				Optional:            true,
 				Sensitive:           true,
 			},
-			
+
 			// Computed attributes
 			"internal": schema.BoolAttribute{
 				MarkdownDescription: "Indicates if this is an internal zone.",
@@ -262,7 +262,7 @@ func (r *ZoneResource) Create(ctx context.Context, req resource.CreateRequest, r
 
 	// Set the ID for the resource (zone name serves as the ID)
 	data.ID = data.Name
-	
+
 	// Read the zone back to get computed values
 	if err := r.readZone(ctx, &data); err != nil {
 		resp.Diagnostics.AddError(
@@ -296,7 +296,7 @@ func (r *ZoneResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 			resp.State.RemoveResource(ctx)
 			return
 		}
-		
+
 		resp.Diagnostics.AddError(
 			"Error reading zone",
 			fmt.Sprintf("Could not read zone %s: %s", data.Name.ValueString(), err.Error()),
@@ -458,7 +458,7 @@ func (r *ZoneResource) readZone(ctx context.Context, data *ZoneResourceModel) er
 	params := url.Values{}
 	params.Set("zone", data.Name.ValueString())
 	endpoint := "/api/zones/options/get?" + params.Encode()
-	
+
 	var optionsResponse ZoneOptionsResponse
 	if err := r.client.DoRequest(ctx, "GET", endpoint, nil, &optionsResponse); err != nil {
 		return fmt.Errorf("failed to get zone options: %w", err)
@@ -466,7 +466,7 @@ func (r *ZoneResource) readZone(ctx context.Context, data *ZoneResourceModel) er
 
 	// Ensure ID is set (zone name serves as the ID)
 	data.ID = data.Name
-	
+
 	// Update the data model with the response
 	data.Type = types.StringValue(optionsResponse.Type)
 	data.Internal = types.BoolValue(optionsResponse.Internal)
@@ -509,18 +509,18 @@ func (r *ZoneResource) readZone(ctx context.Context, data *ZoneResourceModel) er
 	} else {
 		data.ValidateZone = types.BoolValue(false)
 	}
-	
+
 	// Set computed attributes that need explicit defaults
 	// Preserve InitializeForwarder value if already set, otherwise default to false
 	if data.InitializeForwarder.IsNull() || data.InitializeForwarder.IsUnknown() {
 		data.InitializeForwarder = types.BoolValue(false)
 	}
-	
+
 	// Preserve DnssecValidation value if already set, otherwise default to false
 	if data.DnssecValidation.IsNull() || data.DnssecValidation.IsUnknown() {
 		data.DnssecValidation = types.BoolValue(false)
 	}
-	
+
 	// Set default values for schema attributes with defaults
 	data.Protocol = types.StringValue("Udp")
 	data.ProxyType = types.StringValue("DefaultProxy")
@@ -531,12 +531,12 @@ func (r *ZoneResource) readZone(ctx context.Context, data *ZoneResourceModel) er
 	recordsParams.Set("zone", data.Name.ValueString())
 	recordsParams.Set("listZone", "true")
 	recordsEndpoint := "/api/zones/records/get?" + recordsParams.Encode()
-	
+
 	var recordsResponse ZoneRecordsResponse
 	if err := r.client.DoRequest(ctx, "GET", recordsEndpoint, nil, &recordsResponse); err != nil {
 		// Don't fail if records can't be read, just log it
 		tflog.Warn(ctx, "Failed to read zone records for SOA serial", map[string]interface{}{
-			"zone": data.Name.ValueString(),
+			"zone":  data.Name.ValueString(),
 			"error": err.Error(),
 		})
 	} else {
@@ -554,7 +554,7 @@ func (r *ZoneResource) readZone(ctx context.Context, data *ZoneResourceModel) er
 			data.SoaSerial = types.Int64Value(1)
 		}
 	}
-	
+
 	// Ensure SoaSerial is set even if records couldn't be read
 	if data.SoaSerial.IsNull() || data.SoaSerial.IsUnknown() {
 		data.SoaSerial = types.Int64Value(1)
@@ -607,23 +607,23 @@ func (r *ZoneResource) deleteZone(ctx context.Context, zoneName string) error {
 
 // ZoneOptionsResponse represents the API response for zone options
 type ZoneOptionsResponse struct {
-	Name                            string    `json:"name"`
-	Type                            string    `json:"type"`
-	Internal                        bool      `json:"internal"`
-	DnssecStatus                    string    `json:"dnssecStatus"`
-	Disabled                        bool      `json:"disabled"`
-	Catalog                         string    `json:"catalog,omitempty"`
-	UseSoaSerialDateScheme          *bool     `json:"useSoaSerialDateScheme,omitempty"`
-	PrimaryNameServerAddresses      []string  `json:"primaryNameServerAddresses,omitempty"`
-	PrimaryZoneTransferProtocol     string    `json:"primaryZoneTransferProtocol,omitempty"`
-	PrimaryZoneTransferTsigKeyName  string    `json:"primaryZoneTransferTsigKeyName,omitempty"`
-	ValidateZone                    *bool     `json:"validateZone,omitempty"`
+	Name                           string   `json:"name"`
+	Type                           string   `json:"type"`
+	Internal                       bool     `json:"internal"`
+	DnssecStatus                   string   `json:"dnssecStatus"`
+	Disabled                       bool     `json:"disabled"`
+	Catalog                        string   `json:"catalog,omitempty"`
+	UseSoaSerialDateScheme         *bool    `json:"useSoaSerialDateScheme,omitempty"`
+	PrimaryNameServerAddresses     []string `json:"primaryNameServerAddresses,omitempty"`
+	PrimaryZoneTransferProtocol    string   `json:"primaryZoneTransferProtocol,omitempty"`
+	PrimaryZoneTransferTsigKeyName string   `json:"primaryZoneTransferTsigKeyName,omitempty"`
+	ValidateZone                   *bool    `json:"validateZone,omitempty"`
 }
 
 // ZoneRecordsResponse represents the API response for zone records
 type ZoneRecordsResponse struct {
-	Zone    ZoneInfo      `json:"zone"`
-	Records []ZoneRecord  `json:"records"`
+	Zone    ZoneInfo     `json:"zone"`
+	Records []ZoneRecord `json:"records"`
 }
 
 type ZoneInfo struct {
@@ -635,11 +635,11 @@ type ZoneInfo struct {
 }
 
 type ZoneRecord struct {
-	Name     string           `json:"name"`
-	Type     string           `json:"type"`
-	TTL      int              `json:"ttl"`
-	RData    ZoneRecordRData  `json:"rData"`
-	Disabled bool             `json:"disabled"`
+	Name     string          `json:"name"`
+	Type     string          `json:"type"`
+	TTL      int             `json:"ttl"`
+	RData    ZoneRecordRData `json:"rData"`
+	Disabled bool            `json:"disabled"`
 }
 
 type ZoneRecordRData struct {

@@ -179,5 +179,3 @@ WHERE:
 
 RESPONSE:
 Response is a downloadable text file with `Content-Type: text/plain` and `Content-Disposition: attachment`.
-
-
