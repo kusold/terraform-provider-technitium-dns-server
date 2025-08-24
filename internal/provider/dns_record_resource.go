@@ -3,9 +3,9 @@ package provider
 import (
 	"context"
 	"fmt"
+	"math"
 	"strconv"
 	"strings"
-	"math"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
