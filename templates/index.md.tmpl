@@ -1,0 +1,16 @@
+---
+page_title: "Provider: {{.RenderedProviderName}}"
+subcategory: ""
+description: |-
+  {{.Description | plainmarkdown}}
+---
+
+# {{.RenderedProviderName}} Provider
+
+{{.Description | plainmarkdown}}
+
+## Example Usage
+
+{{ tffile "examples/provider/provider.tf" }}
+
+{{ .SchemaMarkdown | trimspace }}

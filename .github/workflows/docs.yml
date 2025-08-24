@@ -31,7 +31,7 @@ jobs:
       - name: Generate docs
         run: |
           go install github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs@latest
-          tfplugindocs generate
+          tfplugindocs generate --provider-name technitium
 
       - name: Check for changes
         id: verify-changed-files

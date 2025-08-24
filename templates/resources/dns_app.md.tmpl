@@ -1,6 +1,6 @@
 ---
 page_title: "{{.Name}} {{.Type}}"
-subcategory: "DNS Records"
+subcategory: "DNS Apps"
 description: |-
   {{.Description | plainmarkdown}}
 ---
@@ -11,6 +11,14 @@ description: |-
 
 ## Example Usage
 
-{{ tffile "examples/data-sources/technitium_dns_records/data-source.tf" }}
+{{ tffile "examples/resources/technitium_dns_app/resource.tf" }}
 
 {{ .SchemaMarkdown | trimspace }}
+
+## Import
+
+DNS apps can be imported using their name:
+
+```
+terraform import technitium_dns_app.example app_name
+```

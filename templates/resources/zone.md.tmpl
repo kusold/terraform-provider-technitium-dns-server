@@ -2,37 +2,23 @@
 page_title: "{{.Name}} {{.Type}}"
 subcategory: "Zone Management"
 description: |-
-  {{.Description}}
+  {{.Description | plainmarkdown}}
 ---
 
 # {{.Name}} ({{.Type}})
 
-{{ .Description }}
+{{.Description | plainmarkdown}}
 
 ## Example Usage
 
 {{ tffile "examples/resources/technitium_zone/resource.tf" }}
 
-## Argument Reference
-
-The following arguments are supported:
-
-{{ range .Arguments }}
-* `{{ .Name }}` - {{ if .Required }}(Required){{ else }}(Optional){{ end }} {{ .Description }}
-{{- end }}
-
-## Attribute Reference
-
-In addition to all arguments above, the following attributes are exported:
-
-{{ range .Attributes }}
-* `{{ .Name }}` - {{ .Description }}
-{{- end }}
+{{ .SchemaMarkdown | trimspace }}
 
 ## Import
 
-Zones can be imported using the zone name:
+Zones can be imported using their zone name:
 
 ```
-$ terraform import technitium_zone.example example.com
+terraform import technitium_zone.example example.com
 ```

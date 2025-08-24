@@ -2,12 +2,12 @@
 page_title: "{{.Name}} {{.Type}}"
 subcategory: "DNS Records"
 description: |-
-  {{.Description}}
+  {{.Description | plainmarkdown}}
 ---
 
 # {{.Name}} ({{.Type}})
 
-{{ .Description }}
+{{.Description | plainmarkdown}}
 
 ## Example Usage
 
@@ -89,21 +89,7 @@ resource "technitium_dns_record" "srv_record" {
 }
 ```
 
-## Argument Reference
-
-The following arguments are supported:
-
-{{ range .Arguments }}
-* `{{ .Name }}` - {{ if .Required }}(Required){{ else }}(Optional){{ end }} {{ .Description }}
-{{- end }}
-
-## Attribute Reference
-
-In addition to all arguments above, the following attributes are exported:
-
-{{ range .Attributes }}
-* `{{ .Name }}` - {{ .Description }}
-{{- end }}
+{{ .SchemaMarkdown | trimspace }}
 
 ## Import
 
