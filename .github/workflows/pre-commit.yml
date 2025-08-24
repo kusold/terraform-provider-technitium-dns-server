@@ -10,9 +10,15 @@ jobs:
   pre-commit:
     name: Pre-commit Hooks
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - name: Checkout code
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
 
       - name: Setup Go
         uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5
@@ -48,16 +54,53 @@ jobs:
             pre-commit-${{ runner.os }}-
 
       - name: Run pre-commit hooks
-        run: pre-commit run --all-files --show-diff-on-failure --color=always
+        id: pre-commit
+        run: |
+          # Run pre-commit and capture the exit code
+          pre-commit run --all-files --show-diff-on-failure --color=always || echo "pre-commit-failed=true" >> $GITHUB_OUTPUT
         env:
           SKIP: task-lint
+
+      - name: Check for changes and commit
+        if: github.event_name == 'pull_request'
+        run: |
+          # Configure git
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+
+          # Check if there are any changes
+          if ! git diff --quiet --exit-code; then
+            echo "Changes detected after pre-commit hooks"
+            git add .
+            git commit -m "fix: auto-fix pre-commit issues" -m "Auto-fixes applied by pre-commit hooks in CI:" -m "- Code formatting (gofmt, goimports)" -m "- Trailing whitespace removal" -m "- End-of-file fixing" -m "- Go module tidying" -m "[skip ci]"
+
+            # Push changes back to the PR branch
+            git push origin HEAD:${{ github.head_ref }}
+
+            echo "✅ Auto-fixes have been committed and pushed to the PR"
+          else
+            echo "✅ No changes needed after pre-commit hooks"
+          fi
+
+      - name: Fail if pre-commit had unfixable issues
+        if: steps.pre-commit.outputs.pre-commit-failed == 'true'
+        run: |
+          echo "❌ Pre-commit hooks failed with unfixable issues"
+          echo "Please review the logs above for details"
+          exit 1
 
   format-check:
     name: Go Format Check
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - name: Checkout code
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
 
       - name: Setup Go
         uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5
@@ -70,21 +113,33 @@ jobs:
         with:
           version: 3.x
 
-      - name: Check Go formatting
+      - name: Run Go formatting
         run: |
           # Run task fmt to format code
           task fmt
 
+      - name: Check for changes and commit
+        if: github.event_name == 'pull_request'
+        run: |
+          # Configure git
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+
           # Check if there are any changes
           if ! git diff --quiet --exit-code; then
-            echo "❌ Code is not properly formatted"
-            echo "Files that need formatting:"
+            echo "Code formatting changes detected"
+            echo "Files that were formatted:"
             git diff --name-only
-            echo ""
-            echo "Run 'task fmt' to fix formatting issues"
-            exit 1
+
+            git add .
+            git commit -m "fix: auto-format Go code" -m "Auto-formatting applied by task fmt in CI" -m "[skip ci]"
+
+            # Push changes back to the PR branch
+            git push origin HEAD:${{ github.head_ref }}
+
+            echo "✅ Formatting fixes have been committed and pushed to the PR"
           else
-            echo "✅ Code is properly formatted"
+            echo "✅ Code is already properly formatted"
           fi
 
   lint-check:
