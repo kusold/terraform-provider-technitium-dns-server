@@ -47,6 +47,7 @@ func TestDNSAppsFileUpload_Integration(t *testing.T) {
 
 		// Verify this is a validation error (app content issue) not a form upload error
 		errMsg := err.Error()
+		//nolint:staticcheck // QF1003: if-else is more appropriate than tagged switch for error message checking
 		if errMsg == "API error: Response status code does not indicate success: 404 (Not Found)." {
 			t.Error("File upload endpoint appears to not exist (404) - this suggests DNS Apps file upload API is not available")
 		} else if errMsg == "failed to create multipart form" ||
@@ -67,6 +68,7 @@ func TestDNSAppsFileUpload_Integration(t *testing.T) {
 
 		// Similar verification as above
 		errMsg := err.Error()
+		//nolint:staticcheck // QF1003: if-else is more appropriate than tagged switch for error message checking
 		if errMsg == "API error: Response status code does not indicate success: 404 (Not Found)." {
 			t.Error("File update endpoint appears to not exist (404) - this suggests DNS Apps file update API is not available")
 		} else if errMsg == "failed to create multipart form" ||

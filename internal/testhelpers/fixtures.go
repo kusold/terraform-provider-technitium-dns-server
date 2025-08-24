@@ -1,7 +1,11 @@
 package testhelpers
 
 import (
+	"archive/zip"
+	"encoding/base64"
 	"fmt"
+	"io"
+	"os"
 	"time"
 )
 
@@ -171,4 +175,116 @@ func GetCompleteTestConfig(host, username, password, zoneName string) string {
 		}),
 		GetTestDataSource("test_zone", zoneName),
 	)
+}
+
+// CreateMockDNSAppZip creates a mock DNS app ZIP file for testing
+func CreateMockDNSAppZip(appName, version string) (string, error) {
+	// Create temporary file
+	tempFile, err := os.CreateTemp("", fmt.Sprintf("%s-*.zip", appName))
+	if err != nil {
+		return "", fmt.Errorf("failed to create temp file: %w", err)
+	}
+	defer tempFile.Close()
+
+	// Create ZIP writer
+	zipWriter := zip.NewWriter(tempFile)
+	defer zipWriter.Close()
+
+	// Create dnsApp.config file (required for DNS apps)
+	configContent := fmt.Sprintf(`{
+  "displayName": "%s Test App",
+  "version": "%s",
+  "description": "Test DNS application for integration testing",
+  "applicationRecordDataTemplate": "127.0.0.1",
+  "author": "Test"
+}`, appName, version)
+
+	configFile, err := zipWriter.Create("dnsApp.config")
+	if err != nil {
+		return "", fmt.Errorf("failed to create config file: %w", err)
+	}
+	_, err = configFile.Write([]byte(configContent))
+	if err != nil {
+		return "", fmt.Errorf("failed to write config content: %w", err)
+	}
+
+	// Create a basic DLL file (empty but valid structure)
+	dllContent := []byte("MZ") // Basic PE header signature
+	dllFile, err := zipWriter.Create(fmt.Sprintf("%s.dll", appName))
+	if err != nil {
+		return "", fmt.Errorf("failed to create DLL file: %w", err)
+	}
+	_, err = dllFile.Write(dllContent)
+	if err != nil {
+		return "", fmt.Errorf("failed to write DLL content: %w", err)
+	}
+
+	return tempFile.Name(), nil
+}
+
+// CreateMockDNSAppZipBase64 creates a mock DNS app ZIP file and returns it as base64 encoded string
+func CreateMockDNSAppZipBase64(appName, version string) (string, error) {
+	// Create temporary file
+	tempFile, err := os.CreateTemp("", fmt.Sprintf("%s-*.zip", appName))
+	if err != nil {
+		return "", fmt.Errorf("failed to create temp file: %w", err)
+	}
+	defer os.Remove(tempFile.Name())
+	defer tempFile.Close()
+
+	// Create ZIP writer
+	zipWriter := zip.NewWriter(tempFile)
+
+	// Create dnsApp.config file (required for DNS apps)
+	configContent := fmt.Sprintf(`{
+  "displayName": "%s Test App",
+  "version": "%s",
+  "description": "Test DNS application for integration testing",
+  "applicationRecordDataTemplate": "127.0.0.1",
+  "author": "Test"
+}`, appName, version)
+
+	configFile, err := zipWriter.Create("dnsApp.config")
+	if err != nil {
+		return "", fmt.Errorf("failed to create config file: %w", err)
+	}
+	_, err = configFile.Write([]byte(configContent))
+	if err != nil {
+		return "", fmt.Errorf("failed to write config content: %w", err)
+	}
+
+	// Create a basic DLL file (empty but valid structure)
+	dllContent := []byte("MZ") // Basic PE header signature
+	dllFile, err := zipWriter.Create(fmt.Sprintf("%s.dll", appName))
+	if err != nil {
+		return "", fmt.Errorf("failed to create DLL file: %w", err)
+	}
+	_, err = dllFile.Write(dllContent)
+	if err != nil {
+		return "", fmt.Errorf("failed to write DLL content: %w", err)
+	}
+
+	// Close the zip writer to finalize the file
+	err = zipWriter.Close()
+	if err != nil {
+		return "", fmt.Errorf("failed to close zip writer: %w", err)
+	}
+
+	// Read the file and encode as base64
+	_, err = tempFile.Seek(0, 0)
+	if err != nil {
+		return "", fmt.Errorf("failed to seek to beginning of file: %w", err)
+	}
+
+	content, err := io.ReadAll(tempFile)
+	if err != nil {
+		return "", fmt.Errorf("failed to read file content: %w", err)
+	}
+
+	return base64.StdEncoding.EncodeToString(content), nil
+}
+
+// CleanupMockZipFile removes the temporary ZIP file
+func CleanupMockZipFile(filePath string) error {
+	return os.Remove(filePath)
 }

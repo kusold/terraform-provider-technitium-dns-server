@@ -4,8 +4,6 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
-	"io"
-	"net/http"
 	"regexp"
 	"strings"
 
@@ -589,18 +587,4 @@ func decodeBase64(encoded string) ([]byte, error) {
 	encoded = strings.ReplaceAll(encoded, "\t", "")
 
 	return base64.StdEncoding.DecodeString(encoded)
-}
-
-func downloadFile(url string) ([]byte, error) {
-	resp, err := http.Get(url)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("HTTP %d: %s", resp.StatusCode, resp.Status)
-	}
-
-	return io.ReadAll(resp.Body)
 }

@@ -21,33 +21,39 @@ func TestAccDNSAppResource_Basic(t *testing.T) {
 	// Setup test container
 	config := setupTestContainer(t)
 
+	// Create mock ZIP file content for testing
+	zipContent, err := testhelpers.CreateMockDNSAppZipBase64("test-app", "1.0.0")
+	if err != nil {
+		t.Fatalf("Failed to create mock ZIP content: %v", err)
+	}
+
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: map[string]func() (tfprotov6.ProviderServer, error){
 			"technitium": providerserver.NewProtocol6WithError(New("test")()),
 		},
 		CheckDestroy: testAccCheckDNSAppDestroy(config),
 		Steps: []resource.TestStep{
-			// Create and Read testing
+			// Create and Read testing - include the config to match what Technitium returns
 			{
-				Config: testAccDNSAppResourceConfig_basic(config, "test-app", "https://download.technitium.com/dns/apps/WildIpApp.zip"),
+				Config: testAccDNSAppResourceConfig_fileWithDefaultConfig(config, "test-app", zipContent),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckDNSAppExists(config, "technitium_dns_app.test"),
 					resource.TestCheckResourceAttr("technitium_dns_app.test", "name", "test-app"),
-					resource.TestCheckResourceAttr("technitium_dns_app.test", "install_method", "url"),
-					resource.TestCheckResourceAttr("technitium_dns_app.test", "url", "https://download.technitium.com/dns/apps/WildIpApp.zip"),
-					resource.TestCheckResourceAttrSet("technitium_dns_app.test", "installed_version"),
+					resource.TestCheckResourceAttr("technitium_dns_app.test", "install_method", "file"),
+					resource.TestCheckResourceAttrSet("technitium_dns_app.test", "version"),
 				),
 			},
 			// ImportState testing
 			{
-				ResourceName:      "technitium_dns_app.test",
-				ImportState:       true,
-				ImportStateVerify: true,
-				ImportStateId:     "test-app",
+				ResourceName:            "technitium_dns_app.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateId:           "test-app",
+				ImportStateVerifyIgnore: []string{"install_method", "file_content", "url"},
 			},
 			// Update and Read testing
 			{
-				Config: testAccDNSAppResourceConfig_withConfig(config, "test-app", "https://download.technitium.com/dns/apps/WildIpApp.zip"),
+				Config: testAccDNSAppResourceConfig_fileWithConfig(config, "test-app", zipContent),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckDNSAppExists(config, "technitium_dns_app.test"),
 					resource.TestCheckResourceAttr("technitium_dns_app.test", "name", "test-app"),
@@ -66,6 +72,17 @@ func TestAccDNSAppResource_Update(t *testing.T) {
 	// Setup test container
 	config := setupTestContainer(t)
 
+	// Create mock ZIP file content for testing
+	zipContent1, err := testhelpers.CreateMockDNSAppZipBase64("update-test-app", "1.0.0")
+	if err != nil {
+		t.Fatalf("Failed to create mock ZIP content 1: %v", err)
+	}
+
+	zipContent2, err := testhelpers.CreateMockDNSAppZipBase64("update-test-app", "1.1.0")
+	if err != nil {
+		t.Fatalf("Failed to create mock ZIP content 2: %v", err)
+	}
+
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: map[string]func() (tfprotov6.ProviderServer, error){
 			"technitium": providerserver.NewProtocol6WithError(New("test")()),
@@ -74,15 +91,15 @@ func TestAccDNSAppResource_Update(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create app
 			{
-				Config: testAccDNSAppResourceConfig_basic(config, "update-test-app", "https://download.technitium.com/dns/apps/WildIpApp.zip"),
+				Config: testAccDNSAppResourceConfig_fileWithDefaultConfigUpdate(config, "update-test-app", zipContent1),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckDNSAppExists(config, "technitium_dns_app.test"),
 					resource.TestCheckResourceAttr("technitium_dns_app.test", "name", "update-test-app"),
 				),
 			},
-			// Update app with new URL (simulating app update)
+			// Update app with new file (simulating app update)
 			{
-				Config: testAccDNSAppResourceConfig_basic(config, "update-test-app", "https://download.technitium.com/dns/apps/WildIpApp.zip"),
+				Config: testAccDNSAppResourceConfig_fileWithDefaultConfigUpdate2(config, "update-test-app", zipContent2),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckDNSAppExists(config, "technitium_dns_app.test"),
 					resource.TestCheckResourceAttr("technitium_dns_app.test", "name", "update-test-app"),
@@ -159,22 +176,66 @@ func testAccCheckDNSAppDestroy(config *testAccConfig) resource.TestCheckFunc {
 	}
 }
 
-func testAccDNSAppResourceConfig_basic(config *testAccConfig, appName, appURL string) string {
+func testAccDNSAppResourceConfig_fileWithDefaultConfig(config *testAccConfig, appName, fileContent string) string {
 	return config.getProviderConfig() + fmt.Sprintf(`
 resource "technitium_dns_app" "test" {
   name           = "%s"
-  install_method = "url"
-  url            = "%s"
+  install_method = "file"
+  file_content   = "%s"
+
+  config = jsonencode({
+    "displayName" = "%s Test App"
+    "version" = "1.0.0"
+    "description" = "Test DNS application for integration testing"
+    "applicationRecordDataTemplate" = "127.0.0.1"
+    "author" = "Test"
+  })
 }
-`, appName, appURL)
+`, appName, fileContent, appName)
 }
 
-func testAccDNSAppResourceConfig_withConfig(config *testAccConfig, appName, appURL string) string {
+func testAccDNSAppResourceConfig_fileWithDefaultConfigUpdate(config *testAccConfig, appName, fileContent string) string {
 	return config.getProviderConfig() + fmt.Sprintf(`
 resource "technitium_dns_app" "test" {
   name           = "%s"
-  install_method = "url"
-  url            = "%s"
+  install_method = "file"
+  file_content   = "%s"
+
+  config = jsonencode({
+    "displayName" = "%s Test App"
+    "version" = "1.0.0"
+    "description" = "Test DNS application for integration testing"
+    "applicationRecordDataTemplate" = "127.0.0.1"
+    "author" = "Test"
+  })
+}
+`, appName, fileContent, appName)
+}
+
+func testAccDNSAppResourceConfig_fileWithDefaultConfigUpdate2(config *testAccConfig, appName, fileContent string) string {
+	return config.getProviderConfig() + fmt.Sprintf(`
+resource "technitium_dns_app" "test" {
+  name           = "%s"
+  install_method = "file"
+  file_content   = "%s"
+
+  config = jsonencode({
+    "displayName" = "%s Test App"
+    "version" = "1.1.0"
+    "description" = "Test DNS application for integration testing"
+    "applicationRecordDataTemplate" = "127.0.0.1"
+    "author" = "Test"
+  })
+}
+`, appName, fileContent, appName)
+}
+
+func testAccDNSAppResourceConfig_fileWithConfig(config *testAccConfig, appName, fileContent string) string {
+	return config.getProviderConfig() + fmt.Sprintf(`
+resource "technitium_dns_app" "test" {
+  name           = "%s"
+  install_method = "file"
+  file_content   = "%s"
 
   config = jsonencode({
     "enabled" = true
@@ -182,5 +243,5 @@ resource "technitium_dns_app" "test" {
     "ipv6"    = false
   })
 }
-`, appName, appURL)
+`, appName, fileContent)
 }

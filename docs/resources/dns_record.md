@@ -2,18 +2,17 @@
 page_title: "technitium_dns_record Resource"
 subcategory: "DNS Records"
 description: |-
-  Manages DNS records in Technitium DNS Server.
+  Technitium DNS Server record resource
 ---
 
-# technitium_dns_record Resource
+# technitium_dns_record (Resource)
 
-Manages DNS records in Technitium DNS Server. This resource allows you to create, update, and delete various types of DNS records including A, AAAA, CNAME, MX, TXT, PTR, NS, and SRV records.
+Technitium DNS Server record resource
 
 ## Example Usage
 
-### A Record (IPv4)
-
 ```terraform
+# A Record (IPv4)
 resource "technitium_dns_record" "example_a" {
   zone = "example.com"
   name = "www"
@@ -21,11 +20,8 @@ resource "technitium_dns_record" "example_a" {
   ttl  = 300
   data = "192.168.1.100"
 }
-```
 
-### AAAA Record (IPv6)
-
-```terraform
+# AAAA Record (IPv6)
 resource "technitium_dns_record" "example_aaaa" {
   zone = "example.com"
   name = "www"
@@ -33,11 +29,8 @@ resource "technitium_dns_record" "example_aaaa" {
   ttl  = 300
   data = "2001:db8::1"
 }
-```
 
-### CNAME Record
-
-```terraform
+# CNAME Record
 resource "technitium_dns_record" "example_cname" {
   zone = "example.com"
   name = "blog"
@@ -45,24 +38,18 @@ resource "technitium_dns_record" "example_cname" {
   ttl  = 300
   data = "www.example.com"
 }
-```
 
-### MX Record
-
-```terraform
+# MX Record (Mail Exchange)
 resource "technitium_dns_record" "example_mx" {
   zone     = "example.com"
-  name     = "@"  # Root domain
+  name     = "@" # Root domain
   type     = "MX"
   ttl      = 300
   data     = "mail.example.com"
   priority = 10
 }
-```
 
-### TXT Record
-
-```terraform
+# TXT Record
 resource "technitium_dns_record" "example_txt_spf" {
   zone = "example.com"
   name = "@"
@@ -70,11 +57,17 @@ resource "technitium_dns_record" "example_txt_spf" {
   ttl  = 300
   data = "v=spf1 include:_spf.google.com ~all"
 }
-```
 
-### NS Record
+# TXT Record for Domain Verification
+resource "technitium_dns_record" "example_txt_verification" {
+  zone = "example.com"
+  name = "_dmarc"
+  type = "TXT"
+  ttl  = 300
+  data = "v=DMARC1; p=quarantine; rua=mailto:dmarc@example.com"
+}
 
-```terraform
+# NS Record (Name Server)
 resource "technitium_dns_record" "example_ns" {
   zone = "example.com"
   name = "subdomain"
@@ -82,11 +75,8 @@ resource "technitium_dns_record" "example_ns" {
   ttl  = 86400
   data = "ns1.subdomain.example.com"
 }
-```
 
-### SRV Record
-
-```terraform
+# SRV Record (Service Location)
 resource "technitium_dns_record" "example_srv" {
   zone     = "example.com"
   name     = "_sip._tcp"
@@ -97,11 +87,8 @@ resource "technitium_dns_record" "example_srv" {
   weight   = 5
   port     = 5060
 }
-```
 
-### PTR Record (Reverse DNS)
-
-```terraform
+# PTR Record (Reverse DNS)
 resource "technitium_dns_record" "example_ptr" {
   zone = "1.168.192.in-addr.arpa"
   name = "100"
@@ -109,60 +96,129 @@ resource "technitium_dns_record" "example_ptr" {
   ttl  = 300
   data = "www.example.com"
 }
+
+# TXT Record with Comments
+resource "technitium_dns_record" "example_txt_with_comments" {
+  zone     = "example.com"
+  name     = "info"
+  type     = "TXT"
+  ttl      = 300
+  data     = "This is a text record with some information"
+  comments = "This record contains company information"
+}
 ```
 
-## Argument Reference
+### A Record Example
 
-The following arguments are supported:
+```terraform
+resource "technitium_dns_record" "a_record" {
+  zone = "example.com"
+  name = "www"
+  type = "A"
+  ttl  = 3600
+  data = "192.0.2.10"
+}
+```
 
-* `zone` - (Required) The zone in which to create the DNS record.
+### AAAA Record Example
 
-* `name` - (Required) The record name (e.g., 'www' for <www.example.com>). Use '@' for the zone's root domain.
+```terraform
+resource "technitium_dns_record" "aaaa_record" {
+  zone = "example.com"
+  name = "www"
+  type = "AAAA"
+  ttl  = 3600
+  data = "2001:db8::1"
+}
+```
 
-* `type` - (Required) The DNS record type. Valid values are: `A`, `AAAA`, `CNAME`, `MX`, `TXT`, `PTR`, `NS`, `SRV`.
+### CNAME Record Example
 
-* `ttl` - (Required) Time-to-live value in seconds.
+```terraform
+resource "technitium_dns_record" "cname_record" {
+  zone = "example.com"
+  name = "alias"
+  type = "CNAME"
+  ttl  = 3600
+  data = "www.example.com"
+}
+```
 
-* `data` - (Required) Record data, which varies by record type:
-  * For A records: The IPv4 address.
-  * For AAAA records: The IPv6 address.
-  * For CNAME records: The canonical name (domain).
-  * For MX records: The mail exchange server domain name.
-  * For TXT records: The text content.
-  * For PTR records: The pointer domain name.
-  * For NS records: The name server domain.
-  * For SRV records: The target domain for the service.
+### MX Record Example
 
-* `priority` - (Optional) Priority value for MX and SRV records. Defaults to 0.
+```terraform
+resource "technitium_dns_record" "mx_record" {
+  zone     = "example.com"
+  name     = "@"  # Root domain
+  type     = "MX"
+  ttl      = 3600
+  data     = "mail.example.com"
+  priority = 10
+}
+```
 
-* `weight` - (Optional) Weight value for SRV records. Defaults to 0.
+### TXT Record Example
 
-* `port` - (Optional) Port value for SRV records. Defaults to 0.
+```terraform
+resource "technitium_dns_record" "txt_record" {
+  zone = "example.com"
+  name = "@"  # Root domain
+  type = "TXT"
+  ttl  = 3600
+  data = "v=spf1 include:_spf.example.com ~all"
+}
+```
 
-* `comments` - (Optional) Optional comments for the DNS record.
+### SRV Record Example
 
-## Attribute Reference
+```terraform
+resource "technitium_dns_record" "srv_record" {
+  zone     = "example.com"
+  name     = "_sip._tcp"
+  type     = "SRV"
+  ttl      = 3600
+  data     = "sip.example.com"
+  priority = 10
+  weight   = 5
+  port     = 5060
+}
+```
 
-In addition to all arguments above, the following attributes are exported:
+<!-- schema generated by tfplugindocs -->
+## Schema
 
-* `id` - A unique identifier for the record in the format `zone:name:type[:priority][:data]`.
+### Required
 
-* `disabled` - Whether the record is disabled.
+- `data` (String) Record data (depends on record type: IP address for A/AAAA, domain for CNAME, text for TXT, etc.)
+- `name` (String) The record name (e.g., 'www' for www.example.com)
+- `ttl` (Number) Time-to-live value in seconds
+- `type` (String) The DNS record type (A, AAAA, CNAME, MX, TXT, etc.)
+- `zone` (String) The zone in which to create the DNS record
 
-* `dnssec_status` - DNSSEC status of the record.
+### Optional
 
-* `last_used_on` - When the record was last used.
+- `comments` (String) Optional comments for the DNS record
+- `port` (Number) Port value (used for SRV records)
+- `priority` (Number) Priority value (used for MX and SRV records)
+- `weight` (Number) Weight value (used for SRV records)
+
+### Read-Only
+
+- `disabled` (Boolean) Whether the record is disabled
+- `dnssec_status` (String) DNSSEC status of the record
+- `id` (String) Resource identifier
+- `last_used_on` (String) When the record was last used
 
 ## Import
 
 DNS records can be imported using the format `zone:name:type[:priority][:data]`, for example:
 
 ```
-terraform import technitium_dns_record.a_record example.com:www:A:192.0.2.10
+$ terraform import technitium_dns_record.a_record example.com:www:A:192.0.2.10
 ```
 
 For MX records with priority:
 
 ```
-terraform import technitium_dns_record.mx_record example.com:@:MX:10:mail.example.com
+$ terraform import technitium_dns_record.mx_record example.com:@:MX:10:mail.example.com
 ```

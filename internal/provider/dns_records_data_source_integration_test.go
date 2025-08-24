@@ -13,8 +13,8 @@ import (
 
 // randomInt generates a random integer between min and max
 func randomInt(min, max int) int {
-	rand.Seed(time.Now().UnixNano())
-	return rand.Intn(max-min) + min
+	//nolint:gosec // G404: math/rand is sufficient for test data generation, crypto/rand not needed
+	return rand.New(rand.NewSource(time.Now().UnixNano())).Intn(max-min) + min
 }
 
 // TestAccDNSRecordsDataSource_Basic tests the technitium_dns_records data source with a real Technitium DNS Server

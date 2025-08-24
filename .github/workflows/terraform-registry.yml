@@ -2,9 +2,9 @@ name: Terraform Registry Validation
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   validate-registry:
@@ -17,7 +17,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v4
         with:
-          go-version-file: 'go.mod'
+          go-version-file: "go.mod"
           cache: true
 
       - name: Check provider structure
@@ -47,7 +47,7 @@ jobs:
       - name: Generate and validate docs
         run: |
           go install github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs@latest
-          tfplugindocs validate
+          tfplugindocs validate --provider-name technitium
 
       - name: Test provider installation locally
         run: |
