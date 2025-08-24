@@ -14,15 +14,15 @@
       {
         devShells.default = pkgs.mkShell {
           buildInputs = with pkgs; [
-            go
-            golangci-lint
-            opentofu
-            git
             curl
-            go-task
             docker
-            pre-commit
+            git
+            go
+            go-task
+            golangci-lint
             gotools
+            opentofu
+            pre-commit
           ];
 
           shellHook = ''
