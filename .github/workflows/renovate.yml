@@ -53,7 +53,7 @@ jobs:
       # cache wouldn't necessarily upload when it changes. actions/download-artifact also doesn't work
       # because it only handles artifacts uploaded in the same run, and we want to restore from the
       # previous successful run.
-      - uses: dawidd6/action-download-artifact@v2
+      - uses: dawidd6/action-download-artifact@268677152d06ba59fcec7a7f0b5d961b6ccd7e1e # v2
         if: github.event.inputs.repoCache != 'disabled'
         continue-on-error: true
         with:
@@ -83,7 +83,7 @@ jobs:
           ls -R $cache_dir
 
       - name: Self-hosted Renovate
-        uses: renovatebot/github-action@v43.0.8
+        uses: renovatebot/github-action@b11417b9eaac3145fe9a8544cee66503724e32b6 # v43.0.8
         with:
           configurationFile: .github/renovate-global.js
           token: "${{ steps.get_token.outputs.token }}"
@@ -102,7 +102,7 @@ jobs:
           # To solve *that*, we'd have to extract to root (/), which isn't safe.
           tar -czvf $cache_archive -C $cache_dir .
 
-      - uses: actions/upload-artifact@v4.6.2
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: github.event.inputs.repoCache != 'disabled'
         with:
           name: ${{ env.cache_key }}
