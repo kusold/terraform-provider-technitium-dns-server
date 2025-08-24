@@ -75,6 +75,7 @@ func NewClient(config Config) (*Client, error) {
 	// Create HTTP client
 	transport := &http.Transport{
 		TLSClientConfig: &tls.Config{
+			//nolint:gosec // G402: InsecureSkipVerify is an intentional user-configurable option for development/testing
 			InsecureSkipVerify: config.InsecureSkipVerify,
 		},
 	}

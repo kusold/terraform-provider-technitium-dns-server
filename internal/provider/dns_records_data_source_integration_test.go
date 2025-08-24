@@ -13,6 +13,7 @@ import (
 
 // randomInt generates a random integer between min and max
 func randomInt(min, max int) int {
+	//nolint:gosec // G404: math/rand is sufficient for test data generation, crypto/rand not needed
 	return rand.New(rand.NewSource(time.Now().UnixNano())).Intn(max-min) + min
 }
 

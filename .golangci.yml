@@ -1,5 +1,8 @@
 version: "2"
 linters:
+  default: standard
+  enable:
+    - gosec
   exclusions:
     generated: lax
     presets:
@@ -7,10 +10,6 @@ linters:
       - common-false-positives
       - legacy
       - std-error-handling
-    paths:
-      - third_party$
-      - builtin$
-      - examples$
 formatters:
   exclusions:
     generated: lax
