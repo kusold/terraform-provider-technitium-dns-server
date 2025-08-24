@@ -118,7 +118,6 @@ jobs:
   acceptance-test:
     name: Acceptance Tests
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' || (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'run-acceptance-tests'))
     services:
       docker:
         image: docker:dind
