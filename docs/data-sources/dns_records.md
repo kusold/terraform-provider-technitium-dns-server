@@ -1,3 +1,17 @@
+---
+page_title: "<no value> <no value>"
+subcategory: "DNS Records"
+description: |-
+  <no value>
+---
+
+# <no value> (<no value>)
+
+<no value>
+
+## Example Usage
+
+```terraform
 # Data source to list all DNS records in a zone
 data "technitium_dns_records" "all_records" {
   zone = "example.com"
@@ -48,3 +62,15 @@ resource "technitium_dns_record" "monitoring_records" {
   ttl  = 300
   data = "${each.key}.example.com"
 }
+```
+
+## Argument Reference
+
+The following arguments are supported:
+
+
+
+## Attribute Reference
+
+In addition to all arguments above, the following attributes are exported:
+

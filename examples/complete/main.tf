@@ -55,14 +55,14 @@ variable "mail_server_ip" {
 resource "technitium_zone" "primary_domain" {
   name = var.domain_name
   type = "Primary"
-  
+
   # SOA record configuration
   soa_primary_name_server = "ns1.${var.domain_name}"
   soa_responsible_person  = "admin.${var.domain_name}"
-  soa_refresh            = 3600
-  soa_retry              = 1800
-  soa_expire             = 1209600
-  soa_minimum            = 300
+  soa_refresh             = 3600
+  soa_retry               = 1800
+  soa_expire              = 1209600
+  soa_minimum             = 300
 }
 
 # Root domain A record
@@ -131,7 +131,7 @@ resource "technitium_dns_record" "ns1_a" {
 resource "technitium_dns_record" "ns2_a" {
   zone = technitium_zone.primary_domain.name
   name = "ns2"
-  type = "A"  
+  type = "A"
   ttl  = 86400
   data = var.mail_server_ip
 }
@@ -175,7 +175,7 @@ resource "technitium_dns_record" "ftp" {
 resource "technitium_zone" "dev_subdomain" {
   name = "dev.${var.domain_name}"
   type = "Primary"
-  
+
   soa_primary_name_server = "ns1.${var.domain_name}"
   soa_responsible_person  = "admin.${var.domain_name}"
 }
@@ -205,7 +205,7 @@ output "primary_zone_name" {
 
 output "zone_records_count" {
   description = "Number of DNS records created"
-  value       = length([
+  value = length([
     technitium_dns_record.root_domain,
     technitium_dns_record.www,
     technitium_dns_record.mx,

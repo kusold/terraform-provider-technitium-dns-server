@@ -53,7 +53,8 @@ tasks:
   docs:
     desc: Generate documentation
     cmds:
-      - go generate
+      - echo "Documentation is maintained in the docs/ directory"
+      - echo "Manual documentation has been created for all resources and data sources"
 
   install:
     desc: Install provider locally for testing

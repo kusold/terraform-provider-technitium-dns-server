@@ -1,0 +1,120 @@
+---
+page_title: "{{.Name}} {{.Type}}"
+subcategory: "DNS Records"
+description: |-
+  {{.Description}}
+---
+
+# {{.Name}} ({{.Type}})
+
+{{ .Description }}
+
+## Example Usage
+
+{{ tffile "examples/resources/technitium_dns_record/resource.tf" }}
+
+### A Record Example
+
+```terraform
+resource "technitium_dns_record" "a_record" {
+  zone = "example.com"
+  name = "www"
+  type = "A"
+  ttl  = 3600
+  data = "192.0.2.10"
+}
+```
+
+### AAAA Record Example
+
+```terraform
+resource "technitium_dns_record" "aaaa_record" {
+  zone = "example.com"
+  name = "www"
+  type = "AAAA"
+  ttl  = 3600
+  data = "2001:db8::1"
+}
+```
+
+### CNAME Record Example
+
+```terraform
+resource "technitium_dns_record" "cname_record" {
+  zone = "example.com"
+  name = "alias"
+  type = "CNAME"
+  ttl  = 3600
+  data = "www.example.com"
+}
+```
+
+### MX Record Example
+
+```terraform
+resource "technitium_dns_record" "mx_record" {
+  zone     = "example.com"
+  name     = "@"  # Root domain
+  type     = "MX"
+  ttl      = 3600
+  data     = "mail.example.com"
+  priority = 10
+}
+```
+
+### TXT Record Example
+
+```terraform
+resource "technitium_dns_record" "txt_record" {
+  zone = "example.com"
+  name = "@"  # Root domain
+  type = "TXT"
+  ttl  = 3600
+  data = "v=spf1 include:_spf.example.com ~all"
+}
+```
+
+### SRV Record Example
+
+```terraform
+resource "technitium_dns_record" "srv_record" {
+  zone     = "example.com"
+  name     = "_sip._tcp"
+  type     = "SRV"
+  ttl      = 3600
+  data     = "sip.example.com"
+  priority = 10
+  weight   = 5
+  port     = 5060
+}
+```
+
+## Argument Reference
+
+The following arguments are supported:
+
+{{ range .Arguments }}
+* `{{ .Name }}` - {{ if .Required }}(Required){{ else }}(Optional){{ end }} {{ .Description }}
+{{- end }}
+
+## Attribute Reference
+
+In addition to all arguments above, the following attributes are exported:
+
+{{ range .Attributes }}
+* `{{ .Name }}` - {{ .Description }}
+{{- end }}
+
+## Import
+
+DNS records can be imported using the format `zone:name:type[:priority][:data]`, for example:
+
+```
+$ terraform import technitium_dns_record.a_record example.com:www:A:192.0.2.10
+```
+
+For MX records with priority:
+
+```
+$ terraform import technitium_dns_record.mx_record example.com:@:MX:10:mail.example.com
+```

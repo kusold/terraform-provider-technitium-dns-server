@@ -18,7 +18,7 @@ output "zone_info" {
 # Example using the data source in other resources
 resource "technitium_dns_record" "conditional_record" {
   count = data.technitium_zone.example.disabled ? 0 : 1
-  
+
   zone = data.technitium_zone.example.name
   name = "api"
   type = "A"

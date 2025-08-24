@@ -1,0 +1,30 @@
+---
+page_title: "{{.Name}} {{.Type}}"
+subcategory: "Zone Management"
+description: |-
+  {{.Description}}
+---
+
+# {{.Name}} ({{.Type}})
+
+{{ .Description }}
+
+## Example Usage
+
+{{ tffile "examples/data-sources/technitium_zone/data-source.tf" }}
+
+## Argument Reference
+
+The following arguments are supported:
+
+{{ range .Arguments }}
+* `{{ .Name }}` - {{ if .Required }}(Required){{ else }}(Optional){{ end }} {{ .Description }}
+{{- end }}
+
+## Attribute Reference
+
+In addition to all arguments above, the following attributes are exported:
+
+{{ range .Attributes }}
+* `{{ .Name }}` - {{ .Description }}
+{{- end }}

@@ -28,7 +28,7 @@ resource "technitium_dns_record" "example_cname" {
 # MX Record (Mail Exchange)
 resource "technitium_dns_record" "example_mx" {
   zone     = "example.com"
-  name     = "@"  # Root domain
+  name     = "@" # Root domain
   type     = "MX"
   ttl      = 300
   data     = "mail.example.com"
