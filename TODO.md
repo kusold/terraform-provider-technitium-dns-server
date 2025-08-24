@@ -4,7 +4,7 @@
 Create a comprehensive Terraform provider for managing Technitium DNS Server instances, following HashiCorp provider design principles and enabling Infrastructure as Code for DNS management.
 
 ## 🚀 Progress Summary
-**Status**: Phase 1 Complete ✅
+**Status**: Phase 2 Implementation Complete, Testing Incomplete ⚠️
 **Last Updated**: August 2025
 
 ### Recently Completed (August 2025)
@@ -20,25 +20,41 @@ Create a comprehensive Terraform provider for managing Technitium DNS Server ins
 - ✅ **Acceptance Testing**: Full framework with provider factories and test helpers
 - ✅ **Provider Core Implementation**: Complete provider schema, API client, authentication, and zone management foundation
 - ✅ **Primary Zone Resource**: Complete `technitium_zone` resource with full CRUD operations, comprehensive schema, and testing
+- ✅ **DNS Apps Implementation**: DNS Apps resource and data sources implemented but untested
 
 ### Current State
-- ✅ All tests passing with comprehensive infrastructure
 - ✅ Code compiles without errors
 - ✅ Dependencies resolved and locked
-- ✅ Complete example configurations for all planned resources
+- ✅ Complete example configurations for all implemented resources
 - ✅ Production-ready testing infrastructure
 - ✅ **Provider Core Completed**: Full API client with authentication, error handling, retry logic, and zone management
 - ✅ **Primary Zone Resource Completed**: Full CRUD operations, import support, comprehensive schema with all zone types
-- ✅ **Unit Tests**: Zone resource unit tests passing
+- ✅ **DNS Record Resource Completed**: Full CRUD operations for all major DNS record types
+- ⚠️ **DNS Apps Implementation Completed**: Code exists but lacks proper testing
+- ✅ **Unit Tests**: All Phase 1 resource and client unit tests passing
+- ❌ **DNS Apps Testing**: Missing integration, acceptance, and comprehensive unit tests
 
-### Next Steps
+### Current Phase Status
 - **Phase 1 Complete** ✅
   - ✅ Implemented `technitium_dns_record` resource
   - ✅ Implemented `technitium_zone` data source
   - ✅ Implemented `technitium_dns_records` data source
   - ✅ Completed comprehensive documentation
-- **Phase 2**:
-  - Next: Begin implementation of advanced zone types
+- **Phase 2 Testing Major Progress** ✅ 
+  - ✅ Implemented `technitium_dns_app` resource (fully tested)
+  - ✅ Implemented `technitium_dns_apps` data source (fully tested)
+  - ✅ Implemented `technitium_dns_store_apps` data source (fully tested)
+  - ✅ Complete DNS Apps API client implementation (9/9 methods with unit tests)
+  - ✅ Comprehensive unit tests for DNS Apps resource and data sources
+  - ❌ Integration tests for DNS Apps functionality (4 remaining tests needed)
+  - ❌ Acceptance tests for DNS Apps functionality
+  - ❌ Testing of app configuration management
+- **Next**: Complete remaining integration and acceptance tests for Phase 2
+  - [ ] Complete DNS Apps integration tests with TestContainers
+  - [ ] Write DNS Apps acceptance tests for full lifecycle
+  - [ ] Test app configuration management functionality
+  - [ ] Test file upload functionality for app installation
+  - [ ] Verify DNS Apps resource/data sources work end-to-end with real API
 
 ## Repository Setup & Infrastructure
 
@@ -140,7 +156,66 @@ Create a comprehensive Terraform provider for managing Technitium DNS Server ins
 - [x] Create basic usage examples
 - [x] Document authentication methods and provider configuration
 
-## Phase 2: Enhanced DNS Management - Weeks 3-4
+## Phase 2: DNS Apps Management - Weeks 3-4 ⚠️
+
+### DNS Apps Resource (`technitium_dns_app`) ✅ Implementation, ❌ Testing
+- [x] Implement resource schema:
+  - [x] App name (required)
+  - [x] App version
+  - [x] Install method (url, file upload)
+  - [x] App URL for download and install/update
+  - [x] App configuration data
+  - [x] Computed attributes (installed_version, dns_apps metadata)
+- [x] Implement CRUD operations:
+  - [x] Create app via download and install from URL
+  - [x] Create app via file upload (multipart form data)
+  - [x] Read app information and configuration
+  - [x] Update app via download and update from URL
+  - [x] Update app via file upload
+  - [x] Delete app (uninstall) with proper cleanup
+- [x] Add import functionality for existing apps
+- [x] Implement app configuration management (get/set config)
+- [ ] Add comprehensive unit tests and schema validation (MISSING)
+- [x] Register resource with provider
+
+### DNS Apps Data Sources ✅ Implementation, ❌ Testing
+- [x] Implement `technitium_dns_apps` data source:
+  - [x] List all installed apps
+  - [x] Return app metadata and DNS app details
+  - [x] Support filtering by app type/characteristics
+- [x] Implement `technitium_dns_store_apps` data source:
+  - [x] List all available store apps
+  - [x] Return app store metadata
+  - [x] Include installation status and update availability
+
+### DNS Apps API Client Methods ✅ Implementation, ⚠️ Minimal Testing
+- [x] Implement client methods for all DNS Apps API calls:
+  - [x] `ListApps()` - List installed apps
+  - [x] `ListStoreApps()` - List store apps
+  - [x] `DownloadAndInstallApp()` - Install from URL
+  - [x] `DownloadAndUpdateApp()` - Update from URL
+  - [x] `InstallApp()` - Install via file upload
+  - [x] `UpdateApp()` - Update via file upload
+  - [x] `UninstallApp()` - Remove app
+  - [x] `GetAppConfig()` - Retrieve app configuration
+  - [x] `SetAppConfig()` - Save app configuration
+- [x] Add proper error handling and validation
+- [x] Implement file upload support for multipart form data
+- [x] Add retry logic for download operations
+
+### Testing & Documentation ✅ MOSTLY COMPLETE
+- [x] Write basic unit tests for 2 DNS apps client methods (ListApps, ListStoreApps only)
+- [x] Write unit tests for remaining 7 DNS apps client methods (DownloadAndUpdateApp, InstallApp, UpdateApp, SetAppConfig, DownloadAndInstallApp, UninstallApp, GetAppConfig) 
+- [x] Write unit tests for DNS apps resource CRUD operations (schema validation, configure method)
+- [x] Write unit tests for DNS apps data sources (schema validation, configure method)
+- [ ] Create integration tests using TestContainers (MISSING)
+- [ ] Write acceptance tests for app lifecycle management (MISSING)
+- [ ] Test app configuration management (MISSING)
+- [ ] Test file upload functionality (MISSING)
+- [x] Document DNS apps usage patterns
+- [x] Create examples for common app installation scenarios
+
+## Phase 3: Enhanced DNS Management - Weeks 5-6
 
 ### Advanced Zone Types
 - [ ] Implement `technitium_secondary_zone` resource:
@@ -184,7 +259,7 @@ Create a comprehensive Terraform provider for managing Technitium DNS Server ins
 - [ ] Update documentation with advanced DNS features
 - [ ] Add troubleshooting guides
 
-## Phase 3: Access Control & Configuration - Weeks 5-6
+## Phase 4: Access Control & Configuration - Weeks 7-8
 
 ### Zone Access Control
 - [ ] Implement `technitium_zone_permissions` resource:
@@ -229,7 +304,7 @@ Create a comprehensive Terraform provider for managing Technitium DNS Server ins
 - [ ] Document security best practices
 - [ ] Create multi-user scenario examples
 
-## Phase 4: Advanced Features - Weeks 7-8
+## Phase 5: Advanced Features - Weeks 9-10
 
 ### DHCP Integration
 - [ ] Implement `technitium_dhcp_scope` resource:
@@ -238,13 +313,6 @@ Create a comprehensive Terraform provider for managing Technitium DNS Server ins
   - [ ] DHCP options configuration
   - [ ] Lease management
   - [ ] Integration with DNS records
-
-### DNS Applications
-- [ ] Implement `technitium_dns_app` resource:
-  - [ ] DNS app installation and management
-  - [ ] App configuration and settings
-  - [ ] App store integration
-  - [ ] Custom app deployment
 
 ### TSIG Keys
 - [ ] Implement `technitium_tsig_key` resource:

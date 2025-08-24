@@ -178,6 +178,7 @@ func (p *TechnitiumProvider) Resources(ctx context.Context) []func() resource.Re
 	return []func() resource.Resource{
 		NewZoneResource,
 		NewDNSRecordResource,
+		NewDNSAppResource,
 	}
 }
 
@@ -185,6 +186,8 @@ func (p *TechnitiumProvider) DataSources(ctx context.Context) []func() datasourc
 	return []func() datasource.DataSource{
 		NewZoneDataSource,
 		NewDNSRecordsDataSource,
+		NewDNSAppsDataSource,
+		NewDNSStoreAppsDataSource,
 	}
 }
 

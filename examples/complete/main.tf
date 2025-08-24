@@ -197,6 +197,35 @@ resource "technitium_dns_record" "dev_api" {
   data = "192.168.1.151"
 }
 
+# DNS Apps for enhanced functionality
+resource "technitium_dns_app" "wild_ip" {
+  name           = "Wild IP"
+  install_method = "url"
+  url            = "https://download.technitium.com/dns/apps/WildIpApp.zip"
+  
+  config = jsonencode({
+    "enabled" = true
+    "ipv4"    = true
+    "ipv6"    = true
+  })
+}
+
+resource "technitium_dns_app" "geo_country" {
+  name           = "Geo Country"
+  install_method = "url"
+  url            = "https://download.technitium.com/dns/apps/GeoCountryApp.zip"
+  
+  config = jsonencode({
+    "enabled"        = true
+    "defaultCountry" = "US"
+  })
+}
+
+# Data sources for monitoring
+data "technitium_dns_apps" "installed_apps" {}
+
+data "technitium_dns_store_apps" "available_apps" {}
+
 # Outputs
 output "primary_zone_name" {
   description = "Primary DNS zone name"
@@ -224,4 +253,19 @@ output "zone_records_count" {
 output "development_zone_name" {
   description = "Development subdomain zone name"
   value       = technitium_zone.dev_subdomain.name
+}
+
+output "installed_dns_apps" {
+  description = "List of installed DNS applications"
+  value = {
+    for app in data.technitium_dns_apps.installed_apps.apps : app.name => {
+      version  = app.version
+      dns_apps = length(app.dns_apps)
+    }
+  }
+}
+
+output "available_store_apps" {
+  description = "Count of available apps in the store"
+  value       = length(data.technitium_dns_store_apps.available_apps.store_apps)
 }
