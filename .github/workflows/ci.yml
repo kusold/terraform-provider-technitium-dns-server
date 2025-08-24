@@ -175,7 +175,7 @@ jobs:
           go build -v -o terraform-provider-technitium-dns-server_${{ matrix.goos }}_${{ matrix.goarch }}
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4.6.2
         with:
           name: terraform-provider-technitium-dns-server_${{ matrix.goos }}_${{ matrix.goarch }}
           path: terraform-provider-technitium-dns-server_${{ matrix.goos }}_${{ matrix.goarch }}*

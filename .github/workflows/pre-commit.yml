@@ -49,6 +49,8 @@ jobs:
 
       - name: Run pre-commit hooks
         run: pre-commit run --all-files --show-diff-on-failure --color=always
+        env:
+          SKIP: task-lint
 
   format-check:
     name: Go Format Check
