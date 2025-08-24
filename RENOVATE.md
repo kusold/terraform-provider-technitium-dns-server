@@ -42,7 +42,8 @@ The Renovate configuration is defined in `renovate.json` and includes:
 
 - Runs on schedule (Mondays at 6 AM UTC)
 - Supports manual dispatch with configurable log levels
-- Uses the latest Renovate GitHub Action
+- Uses the latest Renovate GitHub Action (automatically updated)
+- No hardcoded Renovate version - uses the latest stable release
 
 ### Existing Update Dependencies Workflow
 
