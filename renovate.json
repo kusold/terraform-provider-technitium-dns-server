@@ -33,7 +33,6 @@
     {
       "description": "GitHub Actions",
       "matchManagers": ["github-actions"],
-      "groupName": "github actions",
       "automerge": true,
       "labels": ["github-actions", "dependencies"]
     },
@@ -58,7 +57,6 @@
       "matchPackagePatterns": [".*"],
       "vulnerabilityAlerts": {
         "labels": ["security", "dependencies"],
-        "prPriority": 20,
         "automerge": false,
         "reviewers": ["kusold"]
       }
@@ -67,8 +65,7 @@
   "vulnerabilityAlerts": {
     "enabled": true,
     "labels": ["security", "dependencies"],
-    "reviewers": ["kusold"],
-    "prPriority": 20
+    "reviewers": ["kusold"]
   },
   "osvVulnerabilityAlerts": true,
   "lockFileMaintenance": {
