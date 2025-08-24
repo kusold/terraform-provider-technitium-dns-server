@@ -227,17 +227,6 @@ resource "technitium_zone" "test" {
 `, zoneName)
 }
 
-func testAccZoneResourceConfig_secondary(config *testAccConfig, zoneName string) string {
-	return config.getProviderConfig() + fmt.Sprintf(`
-resource "technitium_zone" "test" {
-  name                         = "%s"
-  type                         = "Secondary"
-  primary_name_server_addresses = "8.8.8.8"
-  zone_transfer_protocol       = "Tcp"
-}
-`, zoneName)
-}
-
 func testAccZoneResourceConfig_forwarder(config *testAccConfig, zoneName string) string {
 	return config.getProviderConfig() + fmt.Sprintf(`
 resource "technitium_zone" "test" {

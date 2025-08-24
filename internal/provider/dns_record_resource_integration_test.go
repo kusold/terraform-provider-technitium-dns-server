@@ -370,16 +370,6 @@ func testAccCheckDNSRecordDestroy(config *testAccConfig) resource.TestCheckFunc 
 	}
 }
 
-// Test configurations
-func testAccDNSRecordConfig_createZone(config *testAccConfig, zoneName string) string {
-	return fmt.Sprintf(`
-resource "technitium_zone" "test_zone" {
-  name = "%s"
-  type = "Primary"
-}
-`, zoneName)
-}
-
 func testAccDNSRecordConfig_A(config *testAccConfig, zoneName, recordName, ipAddress string, ttl int) string {
 	return config.getProviderConfig() + fmt.Sprintf(`
 resource "technitium_zone" "test_zone" {

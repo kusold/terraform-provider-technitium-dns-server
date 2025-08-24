@@ -489,7 +489,7 @@ func (r *ZoneResource) readZone(ctx context.Context, data *ZoneResourceModel) er
 		data.Catalog = types.StringValue(optionsResponse.Catalog)
 	}
 
-	if optionsResponse.PrimaryNameServerAddresses != nil && len(optionsResponse.PrimaryNameServerAddresses) > 0 {
+	if len(optionsResponse.PrimaryNameServerAddresses) > 0 {
 		data.PrimaryNameServerAddresses = types.StringValue(strings.Join(optionsResponse.PrimaryNameServerAddresses, ","))
 	}
 

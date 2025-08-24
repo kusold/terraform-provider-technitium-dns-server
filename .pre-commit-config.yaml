@@ -39,13 +39,13 @@ repos:
         pass_filenames: false
         description: Run 'task fmt' to format Go code
 
-      # - id: task-lint
-      #   name: Task lint (task lint)
-      #   entry: task lint
-      #   language: system
-      #   files: '\.go$'
-      #   pass_filenames: false
-      #   description: Run 'task lint' to format Go code
+      - id: task-lint
+        name: Task lint (task lint)
+        entry: task lint
+        language: system
+        files: '\.go$'
+        pass_filenames: false
+        description: Run 'task lint' to format Go code
 
   # Security scanning - disable for now due to false positives in docs
   # - repo: https://github.com/Yelp/detect-secrets

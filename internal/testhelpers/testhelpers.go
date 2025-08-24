@@ -84,7 +84,7 @@ func (tc *TechnitiumContainer) GetAPIURL() string {
 
 // Cleanup terminates the container
 func (tc *TechnitiumContainer) Cleanup(ctx context.Context) error {
-	return tc.Container.Terminate(ctx)
+	return tc.Terminate(ctx)
 }
 
 // CreateTestClient creates a client for testing against the container

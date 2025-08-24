@@ -33,18 +33,3 @@ func TestZoneDataSource(t *testing.T) {
 	// This test would normally use mocking but we'll skip it for now
 	t.Skip("Skipping unit test that requires mocking")
 }
-
-// Test configuration for zone data source
-func testZoneDataSourceConfig() string {
-	return `
-provider "technitium" {
-  host     = "http://localhost:5380"
-  username = "admin"
-  password = "admin"
-}
-
-data "technitium_zone" "test" {
-  name = "example.com"
-}
-`
-}

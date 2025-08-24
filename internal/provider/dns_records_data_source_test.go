@@ -53,7 +53,7 @@ func TestDNSRecordsDataSource(t *testing.T) {
 			response := mockResponse
 
 			responseJSON, _ := json.Marshal(response)
-			w.Write(responseJSON)
+			_, _ = w.Write(responseJSON)
 			return
 		}
 	}))

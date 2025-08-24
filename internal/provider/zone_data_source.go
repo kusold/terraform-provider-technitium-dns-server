@@ -257,7 +257,7 @@ func (d *ZoneDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 		data.UseSoaSerialDateScheme = types.BoolValue(false)
 	}
 
-	if options.PrimaryNameServerAddresses != nil && len(options.PrimaryNameServerAddresses) > 0 {
+	if len(options.PrimaryNameServerAddresses) > 0 {
 		data.PrimaryNameServerAddresses = types.StringValue(strings.Join(options.PrimaryNameServerAddresses, ","))
 	}
 
