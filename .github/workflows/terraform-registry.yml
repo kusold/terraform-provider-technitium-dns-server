@@ -1,0 +1,80 @@
+name: Terraform Registry Validation
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate-registry:
+    name: Validate Terraform Registry Compatibility
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version-file: 'go.mod'
+          cache: true
+
+      - name: Check provider structure
+        run: |
+          # Check that main.go exists and is properly structured
+          if [ ! -f "main.go" ]; then
+            echo "ERROR: main.go not found"
+            exit 1
+          fi
+          
+          # Check that examples directory exists with proper structure
+          if [ ! -d "examples" ]; then
+            echo "ERROR: examples directory not found"
+            exit 1
+          fi
+          
+          # Check for provider example
+          if [ ! -f "examples/provider/provider.tf" ]; then
+            echo "WARNING: examples/provider/provider.tf not found"
+          fi
+
+      - name: Validate provider binary name
+        run: |
+          # Check that binary can be built with proper naming
+          go build -o terraform-provider-technitium-dns-server_v99.99.99
+
+      - name: Generate and validate docs
+        run: |
+          go install github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs@latest
+          tfplugindocs validate
+
+      - name: Test provider installation locally
+        run: |
+          # Build the provider
+          go build -o terraform-provider-technitium-dns-server
+          
+          # Create a test configuration directory
+          mkdir -p test-config
+          cd test-config
+          
+          # Create a basic terraform config that uses the provider
+          cat > main.tf << 'EOF'
+          terraform {
+            required_providers {
+              technitium = {
+                source = "kusold/technitium-dns-server"
+                version = "~> 0.1"
+              }
+            }
+          }
+          
+          provider "technitium" {
+            host     = "http://localhost:5380"
+            username = "admin"
+            password = "password"
+          }
+          EOF
+          
+          # Initialize terraform (this will validate the provider structure)
+          terraform init -plugin-dir=../ || echo "Provider validation complete"

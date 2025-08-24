@@ -1,0 +1,97 @@
+name: Nightly Tests
+
+on:
+  schedule:
+    # Run every night at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch: # Allow manual triggering
+
+jobs:
+  nightly-tests:
+    name: Nightly Test Suite
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go-version: ['1.20', '1.21', '1.22']
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go ${{ matrix.go-version }}
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ matrix.go-version }}
+          cache: true
+
+      - name: Go mod download
+        run: go mod download
+
+      - name: Run all tests
+        run: |
+          go test -v -race -timeout=30m ./...
+
+      - name: Run integration tests
+        run: |
+          go test -v -timeout=20m ./internal/provider -run=Integration
+
+      - name: Run acceptance tests
+        env:
+          TF_ACC: "1"
+        run: |
+          go test -v -timeout=30m ./internal/provider -run=TestAcc
+
+  compatibility-test:
+    name: Test Latest Dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version-file: 'go.mod'
+          cache: true
+
+      - name: Update to latest dependencies
+        run: |
+          go get -u ./...
+          go mod tidy
+
+      - name: Run tests with latest deps
+        run: |
+          go test -v ./...
+
+      - name: Report compatibility issues
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: 'Nightly Test Failure - Dependency Compatibility Issue',
+              body: `🔴 **Nightly compatibility test failed**
+              
+              The nightly test run with latest dependencies has failed. This may indicate:
+              - Breaking changes in dependencies
+              - Compatibility issues with new Go versions
+              - Infrastructure problems
+              
+              **Failed Run**: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+              
+              Please investigate and resolve the issues.`,
+              labels: ['bug', 'dependencies', 'urgent']
+            };
+            
+            // Check if similar issue already exists
+            const existingIssues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'dependencies,urgent'
+            });
+            
+            if (existingIssues.data.length === 0) {
+              await github.rest.issues.create(issue);
+            }
