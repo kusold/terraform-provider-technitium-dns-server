@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"math"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -417,7 +418,7 @@ func (r *DNSRecordResource) Read(ctx context.Context, req resource.ReadRequest, 
 
 		// For MX records, match on priority and data
 		if recordType == "MX" {
-			if (priority > 0 && record.RData.Preference != int(priority)) ||
+			if (priority > 0 && (priority < int64(math.MinInt32) || priority > int64(math.MaxInt32) || record.RData.Preference != int(priority))) ||
 				(recordData != "" && record.RData.Exchange != recordData) {
 				continue
 			}
