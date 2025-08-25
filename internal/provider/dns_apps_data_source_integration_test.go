@@ -104,20 +104,12 @@ resource "technitium_dns_app" "test_app" {
   name           = "%s"
   install_method = "file"
   file_content   = "%s"
-
-  config = jsonencode({
-    "displayName" = "%s Test App"
-    "version" = "1.0.0"
-    "description" = "Test DNS application for integration testing"
-    "applicationRecordDataTemplate" = "127.0.0.1"
-    "author" = "Test"
-  })
 }
 
 data "technitium_dns_apps" "test" {
   depends_on = [technitium_dns_app.test_app]
 }
-`, appName, fileContent, appName)
+`, appName, fileContent)
 }
 
 func testAccDNSStoreAppsDataSourceConfig_basic(config *testAccConfig) string {
