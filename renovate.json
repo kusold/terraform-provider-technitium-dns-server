@@ -87,6 +87,16 @@
       "matchStrings": ["go\\s+(?<currentValue>\\d+\\.\\d+(?:\\.\\d+)?)"],
       "depNameTemplate": "golang",
       "datasourceTemplate": "golang-version"
+    },
+    {
+      "customType": "regex",
+      "description": "Update Task version in GitHub Actions",
+      "fileMatch": ["\\.github/workflows/.+\\.ya?ml$"],
+      "matchStrings": [
+        "uses:\\s+arduino/setup-task@v2\\s+with:\\s+version:\\s+(?<currentValue>\\d+\\.\\d+\\.\\d+)"
+      ],
+      "depNameTemplate": "go-task/task",
+      "datasourceTemplate": "github-releases"
     }
   ]
 }
