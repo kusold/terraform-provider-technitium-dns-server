@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	TechnitiumImage   = "technitium/dns-server:latest"
+	TechnitiumImage   = "technitium/dns-server:13.6.0"
 	DefaultUsername   = "admin"
 	DefaultPassword   = "admin"
 	TechnitiumAPIPort = "5380/tcp"

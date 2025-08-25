@@ -97,6 +97,19 @@
       ],
       "depNameTemplate": "go-task/task",
       "datasourceTemplate": "github-releases"
+    },
+    {
+      "customType": "regex",
+      "description": "Update Technitium DNS Server Docker image version",
+      "managerFilePatterns": [
+        "/internal/testhelpers/testhelpers\\.go$/",
+        "/Taskfile\\.yaml$/"
+      ],
+      "matchStrings": [
+        "technitium/dns-server:(?<currentValue>\\d+\\.\\d+\\.\\d+)"
+      ],
+      "depNameTemplate": "technitium/dns-server",
+      "datasourceTemplate": "docker"
     }
   ]
 }
