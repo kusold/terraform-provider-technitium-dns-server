@@ -47,7 +47,8 @@ Create a comprehensive Terraform provider for managing Technitium DNS Server ins
   - ✅ Implemented `technitium_dns_records` data source
   - ✅ Completed comprehensive documentation
 - **Phase 2 Complete** ✅
-  - ✅ Implemented `technitium_dns_app` resource (fully tested)
+  - ✅ Implemented `technitium_dns_app` resource (fully tested, installation/uninstallation only)
+  - ✅ Implemented `technitium_dns_app_config` resource (configuration management separated from installation)
   - ✅ Implemented `technitium_dns_apps` data source (fully tested)
   - ✅ Implemented `technitium_dns_store_apps` data source (fully tested)
   - ✅ Complete DNS Apps API client implementation (9/9 methods with unit tests)
@@ -56,6 +57,7 @@ Create a comprehensive Terraform provider for managing Technitium DNS Server ins
   - ✅ Acceptance tests for DNS Apps functionality (full lifecycle testing)
   - ✅ Testing of app configuration management functionality
   - ✅ Testing of file upload functionality for app installation
+  - ✅ **Fixed DNS Apps architecture**: Properly separated installation (`technitium_dns_app`) from configuration (`technitium_dns_app_config`) resources following API design principles
 - **Next**: Begin Phase 3 - Enhanced DNS Management
   - [ ] Implement advanced zone types (secondary, forwarder)
   - [ ] Extend DNS record types (SSHFP, TLSA, CAA, DS)
