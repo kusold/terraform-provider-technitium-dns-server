@@ -2,12 +2,12 @@
 page_title: "technitium_dns_app Resource"
 subcategory: "DNS Apps"
 description: |-
-  DNS App resource for managing Technitium DNS Server applications.
+  DNS App resource for managing Technitium DNS Server application installation and uninstallation.
 ---
 
 # technitium_dns_app (Resource)
 
-DNS App resource for managing Technitium DNS Server applications.
+DNS App resource for managing Technitium DNS Server application installation and uninstallation.
 
 ## Example Usage
 
@@ -17,8 +17,11 @@ resource "technitium_dns_app" "wild_ip" {
   name           = "Wild IP"
   install_method = "url"
   url            = "https://download.technitium.com/dns/apps/WildIpApp.zip"
+}
 
-  # Optional JSON configuration for the app
+# Configure the installed DNS App
+resource "technitium_dns_app_config" "wild_ip_config" {
+  name   = technitium_dns_app.wild_ip.name
   config = jsonencode({
     "enabled" = true
     "ipv4"    = true
@@ -31,14 +34,18 @@ resource "technitium_dns_app" "custom_app" {
   name           = "Custom App"
   install_method = "file"
   file_content   = filebase64("${path.module}/custom-app.zip")
+}
 
+# Configure the custom app
+resource "technitium_dns_app_config" "custom_app_config" {
+  name   = technitium_dns_app.custom_app.name
   config = jsonencode({
     "setting1" = "value1"
     "setting2" = 42
   })
 }
 
-# Install store app (using URL method with store URL)
+# Install store app (using URL method with store URL) without configuration
 resource "technitium_dns_app" "geo_country" {
   name           = "Geo Country"
   install_method = "url"
@@ -56,7 +63,6 @@ resource "technitium_dns_app" "geo_country" {
 
 ### Optional
 
-- `config` (String) JSON configuration for the DNS application
 - `file_content` (String, Sensitive) Base64-encoded content of the app zip file (required when install_method is 'file')
 - `url` (String) URL to download the app from (required when install_method is 'url')
 

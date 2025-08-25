@@ -201,9 +201,21 @@ func (c *Client) SetAppConfig(ctx context.Context, name, config string) error {
 		endpoint += "&token=" + url.QueryEscape(c.Token)
 	}
 
+	// Pretty-format the JSON config with 2-space indentation before sending
+	formattedConfig := config
+	if config != "" {
+		var jsonData interface{}
+		if err := json.Unmarshal([]byte(config), &jsonData); err == nil {
+			if prettyJSON, err := json.MarshalIndent(jsonData, "", "  "); err == nil {
+				formattedConfig = string(prettyJSON)
+			}
+			// If formatting fails, we'll use the original config
+		}
+	}
+
 	// Create form data
 	formData := url.Values{}
-	formData.Set("config", config)
+	formData.Set("config", formattedConfig)
 
 	if err := c.makeFormRequest(ctx, "POST", endpoint, formData, nil); err != nil {
 		return fmt.Errorf("failed to set app config: %w", err)
