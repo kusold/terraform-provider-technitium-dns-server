@@ -55,11 +55,15 @@ jobs:
 
       - name: Push docs changes to main
         if: steps.verify-changed-files.outputs.changed == 'true' && github.event_name == 'push'
-        run: git push
+        run: |
+          git pull --rebase origin main || true
+          git push
 
       - name: Push docs changes to PR branch
         if: steps.verify-changed-files.outputs.changed == 'true' && github.event_name == 'pull_request'
-        run: git push origin HEAD:${{ github.head_ref }}
+        run: |
+          git pull --rebase origin ${{ github.head_ref }} || true
+          git push origin HEAD:${{ github.head_ref }}
 
       - name: Comment on PR if docs changed
         if: steps.verify-changed-files.outputs.changed == 'true' && github.event_name == 'pull_request'
