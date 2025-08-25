@@ -57,7 +57,7 @@ func TestAccDNSAppResource_Basic(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckDNSAppExists(config, "technitium_dns_app.test"),
 					resource.TestCheckResourceAttr("technitium_dns_app.test", "name", "test-app"),
-					resource.TestCheckResourceAttrSet("technitium_dns_app.test", "config"),
+					resource.TestCheckResourceAttr("technitium_dns_app.test", "install_method", "file"),
 				),
 			},
 		},
@@ -182,16 +182,8 @@ resource "technitium_dns_app" "test" {
   name           = "%s"
   install_method = "file"
   file_content   = "%s"
-
-  config = jsonencode({
-    "displayName" = "%s Test App"
-    "version" = "1.0.0"
-    "description" = "Test DNS application for integration testing"
-    "applicationRecordDataTemplate" = "127.0.0.1"
-    "author" = "Test"
-  })
 }
-`, appName, fileContent, appName)
+`, appName, fileContent)
 }
 
 func testAccDNSAppResourceConfig_fileWithDefaultConfigUpdate(config *testAccConfig, appName, fileContent string) string {
@@ -200,16 +192,8 @@ resource "technitium_dns_app" "test" {
   name           = "%s"
   install_method = "file"
   file_content   = "%s"
-
-  config = jsonencode({
-    "displayName" = "%s Test App"
-    "version" = "1.0.0"
-    "description" = "Test DNS application for integration testing"
-    "applicationRecordDataTemplate" = "127.0.0.1"
-    "author" = "Test"
-  })
 }
-`, appName, fileContent, appName)
+`, appName, fileContent)
 }
 
 func testAccDNSAppResourceConfig_fileWithDefaultConfigUpdate2(config *testAccConfig, appName, fileContent string) string {
@@ -218,16 +202,8 @@ resource "technitium_dns_app" "test" {
   name           = "%s"
   install_method = "file"
   file_content   = "%s"
-
-  config = jsonencode({
-    "displayName" = "%s Test App"
-    "version" = "1.1.0"
-    "description" = "Test DNS application for integration testing"
-    "applicationRecordDataTemplate" = "127.0.0.1"
-    "author" = "Test"
-  })
 }
-`, appName, fileContent, appName)
+`, appName, fileContent)
 }
 
 func testAccDNSAppResourceConfig_fileWithConfig(config *testAccConfig, appName, fileContent string) string {
@@ -236,12 +212,6 @@ resource "technitium_dns_app" "test" {
   name           = "%s"
   install_method = "file"
   file_content   = "%s"
-
-  config = jsonencode({
-    "enabled" = true
-    "ipv4"    = true
-    "ipv6"    = false
-  })
 }
 `, appName, fileContent)
 }
