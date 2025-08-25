@@ -102,7 +102,7 @@ tasks:
         docker run -d --name technitium-test \
           -p 5380:5380 \
           -e DNS_SERVER_ADMIN_PASSWORD=admin \
-          technitium/dns-server:latest
+          technitium/dns-server:13.6.0
       - echo "Container started. Wait a few seconds for it to initialize..."
       - sleep 10
       - echo "Test container ready at http://localhost:5380"
