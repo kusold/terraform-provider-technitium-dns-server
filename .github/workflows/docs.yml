@@ -46,13 +46,20 @@ jobs:
           fi
 
       - name: Commit updated docs
-        if: steps.verify-changed-files.outputs.changed == 'true' && github.event_name == 'push'
+        if: steps.verify-changed-files.outputs.changed == 'true'
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add docs/
           git commit -m "docs: auto-generate provider documentation" || exit 0
-          git push
+
+      - name: Push docs changes to main
+        if: steps.verify-changed-files.outputs.changed == 'true' && github.event_name == 'push'
+        run: git push
+
+      - name: Push docs changes to PR branch
+        if: steps.verify-changed-files.outputs.changed == 'true' && github.event_name == 'pull_request'
+        run: git push origin HEAD:${{ github.head_ref }}
 
       - name: Comment on PR if docs changed
         if: steps.verify-changed-files.outputs.changed == 'true' && github.event_name == 'pull_request'
@@ -63,5 +70,5 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: '📝 Provider documentation has been updated. Please review the changes in the `docs/` directory.'
+              body: '📝 Provider documentation has been updated and committed to this PR. Please review the changes in the `docs/` directory.'
             })

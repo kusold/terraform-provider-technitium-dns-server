@@ -586,8 +586,10 @@ func TestSetAppConfig(t *testing.T) {
 		if name != "test-app" {
 			t.Errorf("Expected name 'test-app', got '%s'", name)
 		}
-		if config != "{\"setting\":\"value\"}" {
-			t.Errorf("Expected config '{\"setting\":\"value\"}', got '%s'", config)
+		// Expect pretty-formatted JSON with 2-space indentation
+		expectedConfig := "{\n  \"setting\": \"value\"\n}"
+		if config != expectedConfig {
+			t.Errorf("Expected config '%s', got '%s'", expectedConfig, config)
 		}
 
 		w.Header().Set("Content-Type", "application/json")
@@ -607,5 +609,85 @@ func TestSetAppConfig(t *testing.T) {
 	err := client.SetAppConfig(context.Background(), "test-app", "{\"setting\":\"value\"}")
 	if err != nil {
 		t.Fatalf("SetAppConfig failed: %v", err)
+	}
+}
+
+func TestSetAppConfigJSONFormatting(t *testing.T) {
+	tests := []struct {
+		name           string
+		input          string
+		expectedOutput string
+	}{
+		{
+			name:           "simple object",
+			input:          `{"key":"value"}`,
+			expectedOutput: "{\n  \"key\": \"value\"\n}",
+		},
+		{
+			name:           "nested object",
+			input:          `{"outer":{"inner":"value"}}`,
+			expectedOutput: "{\n  \"outer\": {\n    \"inner\": \"value\"\n  }\n}",
+		},
+		{
+			name:           "array with objects",
+			input:          `{"items":[{"name":"item1"},{"name":"item2"}]}`,
+			expectedOutput: "{\n  \"items\": [\n    {\n      \"name\": \"item1\"\n    },\n    {\n      \"name\": \"item2\"\n    }\n  ]\n}",
+		},
+		{
+			name:           "empty string",
+			input:          "",
+			expectedOutput: "",
+		},
+		{
+			name:           "invalid JSON - should pass through unchanged",
+			input:          "not json",
+			expectedOutput: "not json",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Create mock response
+			mockResponse := APIResponse{
+				Status:   "ok",
+				Response: json.RawMessage(`{}`),
+			}
+
+			// Create test server
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.URL.Path != "/api/apps/config/set" {
+					t.Errorf("Expected path /api/apps/config/set, got %s", r.URL.Path)
+				}
+
+				// Parse form data
+				err := r.ParseForm()
+				if err != nil {
+					t.Fatalf("Failed to parse form: %v", err)
+				}
+
+				config := r.FormValue("config")
+				if config != tt.expectedOutput {
+					t.Errorf("Expected config '%s', got '%s'", tt.expectedOutput, config)
+				}
+
+				w.Header().Set("Content-Type", "application/json")
+				_ = json.NewEncoder(w).Encode(mockResponse)
+			}))
+			defer server.Close()
+
+			// Create client
+			client := &Client{
+				BaseURL:    server.URL,
+				HTTPClient: server.Client(),
+				Token:      "test-token",
+				retries:    1,
+			}
+
+			// Test SetAppConfig
+			err := client.SetAppConfig(context.Background(), "test-app", tt.input)
+			if err != nil {
+				t.Fatalf("SetAppConfig failed: %v", err)
+			}
+		})
 	}
 }
