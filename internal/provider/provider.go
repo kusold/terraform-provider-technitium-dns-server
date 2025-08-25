@@ -179,6 +179,7 @@ func (p *TechnitiumProvider) Resources(ctx context.Context) []func() resource.Re
 		NewZoneResource,
 		NewDNSRecordResource,
 		NewDNSAppResource,
+		NewDNSAppConfigResource,
 	}
 }
 

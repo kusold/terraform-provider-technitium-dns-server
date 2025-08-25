@@ -11,6 +11,25 @@ tasks:
     cmds:
       - go build -o terraform-provider-technitium-dns-server
 
+  package:
+    desc: Build and package provider for dev_overrides usage
+    deps: [build]
+    cmds:
+      - echo "Building provider for dev_overrides..."
+      - mkdir -p dist
+      - cp terraform-provider-technitium-dns-server dist/terraform-provider-technitium-dns-server
+      - echo "✅ Provider packaged in dist/ directory"
+      # - echo "📁 Binary: dist/terraform-provider-technitium-dns-server"
+      # - echo "🔧 Dev override path: {{.PWD}}/dist"
+      - echo ""
+      - echo "Add this to your ~/.terraformrc:"
+      - echo 'provider_installation {'
+      - echo '  dev_overrides {'
+      - echo '    "local/kusold/technitium-dns-server" = "{{.PWD}}/dist"'
+      - echo '  }'
+      - echo '  direct {}'
+      - echo '}'
+
   test:
     desc: Run all tests
     cmds:

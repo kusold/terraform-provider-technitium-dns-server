@@ -42,7 +42,6 @@ type DNSAppResourceModel struct {
 	InstallMethod types.String `tfsdk:"install_method"`
 	URL           types.String `tfsdk:"url"`
 	FileContent   types.String `tfsdk:"file_content"`
-	Config        types.String `tfsdk:"config"`
 
 	// Computed attributes
 	Version types.String `tfsdk:"version"`
@@ -68,7 +67,7 @@ func (r *DNSAppResource) Metadata(ctx context.Context, req resource.MetadataRequ
 
 func (r *DNSAppResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "DNS App resource for managing Technitium DNS Server applications.",
+		MarkdownDescription: "DNS App resource for managing Technitium DNS Server application installation and uninstallation.",
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -116,10 +115,6 @@ func (r *DNSAppResource) Schema(ctx context.Context, req resource.SchemaRequest,
 				MarkdownDescription: "Base64-encoded content of the app zip file (required when install_method is 'file')",
 				Optional:            true,
 				Sensitive:           true,
-			},
-			"config": schema.StringAttribute{
-				MarkdownDescription: "JSON configuration for the DNS application",
-				Optional:            true,
 			},
 			"version": schema.StringAttribute{
 				MarkdownDescription: "Version of the installed app",
@@ -237,17 +232,6 @@ func (r *DNSAppResource) Create(ctx context.Context, req resource.CreateRequest,
 		return
 	}
 
-	// Set app configuration if provided
-	if !data.Config.IsNull() && !data.Config.IsUnknown() {
-		config := data.Config.ValueString()
-		if err := r.client.SetAppConfig(ctx, name, config); err != nil {
-			tflog.Warn(ctx, "Failed to set app config", map[string]interface{}{
-				"error": err.Error(),
-			})
-			// Don't fail the resource creation for config errors
-		}
-	}
-
 	// Update the state with the installed app data
 	data.ID = types.StringValue(name)
 	data.Version = types.StringValue(app.Version)
@@ -307,20 +291,6 @@ func (r *DNSAppResource) Read(ctx context.Context, req resource.ReadRequest, res
 		})
 		resp.State.RemoveResource(ctx)
 		return
-	}
-
-	// Get app configuration
-	config, err := r.client.GetAppConfig(ctx, name)
-	if err != nil {
-		tflog.Warn(ctx, "Failed to get app config", map[string]interface{}{
-			"error": err.Error(),
-		})
-		// Don't fail the read for config errors, just set to null
-		data.Config = types.StringNull()
-	} else if config != nil {
-		data.Config = types.StringValue(*config)
-	} else {
-		data.Config = types.StringNull()
 	}
 
 	// Update computed attributes
@@ -395,15 +365,6 @@ func (r *DNSAppResource) Update(ctx context.Context, req resource.UpdateRequest,
 			return
 		}
 		data.DNSApps = dnsApps
-	}
-
-	// Update app configuration if provided
-	if !data.Config.IsNull() && !data.Config.IsUnknown() {
-		config := data.Config.ValueString()
-		if err := r.client.SetAppConfig(ctx, name, config); err != nil {
-			resp.Diagnostics.AddError("Config Update Failed", fmt.Sprintf("Unable to update app config: %s", err.Error()))
-			return
-		}
 	}
 
 	tflog.Debug(ctx, "Successfully updated DNS app", map[string]interface{}{

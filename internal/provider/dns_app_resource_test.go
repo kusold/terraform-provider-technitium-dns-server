@@ -62,9 +62,6 @@ func TestDNSAppResource(t *testing.T) {
 		if _, ok := schema.Attributes["file_content"]; !ok {
 			t.Error("Schema should have 'file_content' attribute")
 		}
-		if _, ok := schema.Attributes["config"]; !ok {
-			t.Error("Schema should have 'config' attribute")
-		}
 
 		nameAttr := schema.Attributes["name"]
 		if !nameAttr.IsRequired() {
@@ -151,14 +148,6 @@ func TestDNSAppResource_SchemaValidation(t *testing.T) {
 		{
 			name:          "file_content attribute",
 			attributeName: "file_content",
-			shouldExist:   true,
-			isRequired:    false,
-			isOptional:    true,
-			isComputed:    false,
-		},
-		{
-			name:          "config attribute",
-			attributeName: "config",
 			shouldExist:   true,
 			isRequired:    false,
 			isOptional:    true,
