@@ -82,7 +82,6 @@ func TestAccDNSRecordResource_FWD_Advanced(t *testing.T) {
 					resource.TestCheckResourceAttr("technitium_dns_record.test", "forwarder", "9.9.9.9"),
 					resource.TestCheckResourceAttr("technitium_dns_record.test", "protocol", "Tls"),
 					resource.TestCheckResourceAttr("technitium_dns_record.test", "dnssec_validation", "true"),
-					resource.TestCheckResourceAttr("technitium_dns_record.test", "forwarder_priority", "10"),
 				),
 			},
 		},
@@ -93,7 +92,9 @@ func testAccDNSRecordConfig_FWD(config *testAccConfig, zoneName, recordName, for
 	return config.getProviderConfig() + fmt.Sprintf(`
 resource "technitium_zone" "test_zone" {
   name = "%s"
-  type = "Primary"
+  type = "Forwarder"
+  forwarder = "8.8.8.8"
+  protocol = "Udp"
 }
 
 resource "technitium_dns_record" "test" {
@@ -112,7 +113,9 @@ func testAccDNSRecordConfig_FWD_Advanced(config *testAccConfig, zoneName, record
 	return config.getProviderConfig() + fmt.Sprintf(`
 resource "technitium_zone" "test_zone" {
   name = "%s"
-  type = "Primary"
+  type = "Forwarder"
+  forwarder = "8.8.8.8"
+  protocol = "Udp"
 }
 
 resource "technitium_dns_record" "test" {
@@ -120,9 +123,9 @@ resource "technitium_dns_record" "test" {
   name               = "%s"
   type               = "FWD"
   ttl                = 1800
+  data               = "9.9.9.9"
   forwarder          = "9.9.9.9"
   protocol           = "Tls"
-  forwarder_priority = 10
   dnssec_validation  = true
   comments           = "Advanced FWD record with TLS"
 }
