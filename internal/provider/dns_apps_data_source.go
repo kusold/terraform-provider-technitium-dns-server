@@ -44,6 +44,7 @@ func (d *DNSAppsDataSource) Metadata(ctx context.Context, req datasource.Metadat
 
 func (d *DNSAppsDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		Description:         "Data source to retrieve all installed DNS applications from a Technitium DNS Server",
 		MarkdownDescription: "Data source to retrieve all installed DNS applications from a Technitium DNS Server",
 
 		Attributes: map[string]schema.Attribute{

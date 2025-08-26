@@ -92,3 +92,13 @@ resource "technitium_dns_record" "example_txt_with_comments" {
   data     = "This is a text record with some information"
   comments = "This record contains company information"
 }
+
+# FWD Record (Forwarder)
+resource "technitium_dns_record" "example_fwd" {
+  zone      = "example.com"
+  name      = "forward"
+  type      = "FWD"
+  ttl       = 3600
+  forwarder = "8.8.8.8"  # Forward to Google DNS
+  protocol  = "Udp"
+}

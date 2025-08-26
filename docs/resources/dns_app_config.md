@@ -14,7 +14,7 @@ DNS App Config resource for managing Technitium DNS Server application configura
 
 ```terraform
 # Configure a DNS App
-# Note: The JSON configuration is automatically pretty-formatted with 2-space 
+# Note: The JSON configuration is automatically pretty-formatted with 2-space
 # indentation before being sent to the Technitium DNS server for better readability.
 resource "technitium_dns_app_config" "wild_ip_config" {
   name   = "Wild IP"
