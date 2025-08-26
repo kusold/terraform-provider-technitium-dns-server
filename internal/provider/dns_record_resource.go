@@ -48,6 +48,17 @@ type DNSRecordResourceModel struct {
 	Port     types.Int64  `tfsdk:"port"`     // For SRV records
 	Comments types.String `tfsdk:"comments"` // Optional comments
 
+	// FWD record specific fields
+	Protocol          types.String `tfsdk:"protocol"`           // For FWD records
+	Forwarder         types.String `tfsdk:"forwarder"`          // For FWD records
+	ForwarderPriority types.Int64  `tfsdk:"forwarder_priority"` // For FWD records
+	DnssecValidation  types.Bool   `tfsdk:"dnssec_validation"`  // For FWD records
+	ProxyType         types.String `tfsdk:"proxy_type"`         // For FWD records
+	ProxyAddress      types.String `tfsdk:"proxy_address"`      // For FWD records
+	ProxyPort         types.Int64  `tfsdk:"proxy_port"`         // For FWD records
+	ProxyUsername     types.String `tfsdk:"proxy_username"`     // For FWD records
+	ProxyPassword     types.String `tfsdk:"proxy_password"`     // For FWD records
+
 	// Computed attributes
 	Disabled     types.Bool   `tfsdk:"disabled"`
 	DnssecStatus types.String `tfsdk:"dnssec_status"`
@@ -93,7 +104,7 @@ func (r *DNSRecordResource) Schema(ctx context.Context, req resource.SchemaReque
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"A", "AAAA", "CNAME", "MX", "TXT",
-						"PTR", "NS", "SRV",
+						"PTR", "NS", "SRV", "FWD",
 					),
 				},
 			},
@@ -135,6 +146,63 @@ func (r *DNSRecordResource) Schema(ctx context.Context, req resource.SchemaReque
 			"comments": schema.StringAttribute{
 				MarkdownDescription: "Optional comments for the DNS record",
 				Optional:            true,
+			},
+
+			// FWD record specific attributes
+			"protocol": schema.StringAttribute{
+				MarkdownDescription: "Protocol for FWD records (Udp, Tcp, Tls, Https, Quic)",
+				Optional:            true,
+				Validators: []validator.String{
+					stringvalidator.OneOf("Udp", "Tcp", "Tls", "Https", "Quic"),
+				},
+			},
+			"forwarder": schema.StringAttribute{
+				MarkdownDescription: "Forwarder address for FWD records (IP address or 'this-server')",
+				Optional:            true,
+			},
+			"forwarder_priority": schema.Int64Attribute{
+				MarkdownDescription: "Priority for FWD records (higher priority = lower value)",
+				Optional:            true,
+				Computed:            true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
+			},
+			"dnssec_validation": schema.BoolAttribute{
+				MarkdownDescription: "Enable DNSSEC validation for FWD records",
+				Optional:            true,
+				Computed:            true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"proxy_type": schema.StringAttribute{
+				MarkdownDescription: "Proxy type for FWD records (NoProxy, DefaultProxy, Http, Socks5)",
+				Optional:            true,
+				Validators: []validator.String{
+					stringvalidator.OneOf("NoProxy", "DefaultProxy", "Http", "Socks5"),
+				},
+			},
+			"proxy_address": schema.StringAttribute{
+				MarkdownDescription: "Proxy server address for FWD records",
+				Optional:            true,
+			},
+			"proxy_port": schema.Int64Attribute{
+				MarkdownDescription: "Proxy server port for FWD records",
+				Optional:            true,
+				Computed:            true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
+			},
+			"proxy_username": schema.StringAttribute{
+				MarkdownDescription: "Proxy username for FWD records",
+				Optional:            true,
+			},
+			"proxy_password": schema.StringAttribute{
+				MarkdownDescription: "Proxy password for FWD records",
+				Optional:            true,
+				Sensitive:           true,
 			},
 
 			// Computed attributes
@@ -422,6 +490,11 @@ func (r *DNSRecordResource) Read(ctx context.Context, req resource.ReadRequest, 
 				(recordData != "" && record.RData.Exchange != recordData) {
 				continue
 			}
+		} else if recordType == "FWD" {
+			// For FWD records, match on forwarder address
+			if recordData != "" && record.RData.Forwarder != recordData {
+				continue
+			}
 		} else if recordType == "A" || recordType == "AAAA" {
 			if recordData != "" && record.RData.IPAddress != recordData {
 				continue
@@ -482,6 +555,45 @@ func (r *DNSRecordResource) Read(ctx context.Context, req resource.ReadRequest, 
 			data.Port = types.Int64Value(0)
 		}
 
+		// Set default values for FWD record fields
+		if data.ForwarderPriority.IsNull() || data.ForwarderPriority.IsUnknown() {
+			data.ForwarderPriority = types.Int64Value(0)
+		}
+
+		if data.DnssecValidation.IsNull() || data.DnssecValidation.IsUnknown() {
+			data.DnssecValidation = types.BoolValue(false)
+		}
+
+		if data.ProxyPort.IsNull() || data.ProxyPort.IsUnknown() {
+			data.ProxyPort = types.Int64Value(0)
+		}
+
+		// Set default values for FWD record fields
+		if data.ForwarderPriority.IsNull() || data.ForwarderPriority.IsUnknown() {
+			data.ForwarderPriority = types.Int64Value(0)
+		}
+
+		if data.DnssecValidation.IsNull() || data.DnssecValidation.IsUnknown() {
+			data.DnssecValidation = types.BoolValue(false)
+		}
+
+		if data.ProxyPort.IsNull() || data.ProxyPort.IsUnknown() {
+			data.ProxyPort = types.Int64Value(0)
+		}
+
+		// Set default values for FWD record fields
+		if data.ForwarderPriority.IsNull() || data.ForwarderPriority.IsUnknown() {
+			data.ForwarderPriority = types.Int64Value(0)
+		}
+
+		if data.DnssecValidation.IsNull() || data.DnssecValidation.IsUnknown() {
+			data.DnssecValidation = types.BoolValue(false)
+		}
+
+		if data.ProxyPort.IsNull() || data.ProxyPort.IsUnknown() {
+			data.ProxyPort = types.Int64Value(0)
+		}
+
 		if record.LastUsedOn != "" {
 			data.LastUsedOn = types.StringValue(record.LastUsedOn)
 		} else {
@@ -519,6 +631,28 @@ func (r *DNSRecordResource) Read(ctx context.Context, req resource.ReadRequest, 
 			data.Priority = types.Int64Value(int64(record.RData.Priority))
 			data.Weight = types.Int64Value(int64(record.RData.Weight))
 			data.Port = types.Int64Value(int64(record.RData.Port))
+		case "FWD":
+			data.Data = types.StringValue(record.RData.Forwarder)
+			data.Protocol = types.StringValue(record.RData.Protocol)
+			data.Forwarder = types.StringValue(record.RData.Forwarder)
+			data.ForwarderPriority = types.Int64Value(int64(record.RData.ForwarderPriority))
+			data.DnssecValidation = types.BoolValue(record.RData.DnssecValidation)
+
+			if record.RData.ProxyType != "" {
+				data.ProxyType = types.StringValue(record.RData.ProxyType)
+			}
+			if record.RData.ProxyAddress != "" {
+				data.ProxyAddress = types.StringValue(record.RData.ProxyAddress)
+			}
+			if record.RData.ProxyPort > 0 {
+				data.ProxyPort = types.Int64Value(int64(record.RData.ProxyPort))
+			}
+			if record.RData.ProxyUsername != "" {
+				data.ProxyUsername = types.StringValue(record.RData.ProxyUsername)
+			}
+			if record.RData.ProxyPassword != "" {
+				data.ProxyPassword = types.StringValue(record.RData.ProxyPassword)
+			}
 		}
 
 		break
@@ -809,6 +943,62 @@ func (r *DNSRecordResource) buildRecordOptions(ctx context.Context, data *DNSRec
 		if !data.Port.IsNull() && !data.Port.IsUnknown() {
 			options[portParam] = strconv.FormatInt(data.Port.ValueInt64(), 10)
 		}
+
+	case "FWD":
+		// Protocol parameter
+		protocolParam := "protocol"
+		if opType == "new" {
+			protocolParam = "newProtocol"
+		}
+		if !data.Protocol.IsNull() && !data.Protocol.IsUnknown() {
+			options[protocolParam] = data.Protocol.ValueString()
+		} else {
+			// Default to Udp if not specified
+			options[protocolParam] = "Udp"
+		}
+
+		// Forwarder parameter (required)
+		forwarderParam := "forwarder"
+		if opType == "new" {
+			forwarderParam = "newForwarder"
+		}
+		if !data.Forwarder.IsNull() && !data.Forwarder.IsUnknown() {
+			options[forwarderParam] = data.Forwarder.ValueString()
+		} else {
+			// Use data field as forwarder if forwarder field is not set
+			options[forwarderParam] = data.Data.ValueString()
+		}
+
+		// Optional forwarder priority
+		if !data.ForwarderPriority.IsNull() && !data.ForwarderPriority.IsUnknown() {
+			options["forwarderPriority"] = strconv.FormatInt(data.ForwarderPriority.ValueInt64(), 10)
+		}
+
+		// Optional DNSSEC validation
+		if !data.DnssecValidation.IsNull() && !data.DnssecValidation.IsUnknown() {
+			options["dnssecValidation"] = strconv.FormatBool(data.DnssecValidation.ValueBool())
+		}
+
+		// Optional proxy configuration
+		if !data.ProxyType.IsNull() && !data.ProxyType.IsUnknown() {
+			options["proxyType"] = data.ProxyType.ValueString()
+		}
+
+		if !data.ProxyAddress.IsNull() && !data.ProxyAddress.IsUnknown() {
+			options["proxyAddress"] = data.ProxyAddress.ValueString()
+		}
+
+		if !data.ProxyPort.IsNull() && !data.ProxyPort.IsUnknown() {
+			options["proxyPort"] = strconv.FormatInt(data.ProxyPort.ValueInt64(), 10)
+		}
+
+		if !data.ProxyUsername.IsNull() && !data.ProxyUsername.IsUnknown() {
+			options["proxyUsername"] = data.ProxyUsername.ValueString()
+		}
+
+		if !data.ProxyPassword.IsNull() && !data.ProxyPassword.IsUnknown() {
+			options["proxyPassword"] = data.ProxyPassword.ValueString()
+		}
 	}
 
 	// Add comments for create and update operations
@@ -854,6 +1044,55 @@ func (r *DNSRecordResource) validateRecord(data *DNSRecordResourceModel, options
 
 		if data.Port.IsNull() || data.Port.IsUnknown() {
 			return fmt.Errorf("port is required for SRV records")
+		}
+
+	case "FWD":
+		// Ensure forwarder is set for FWD records (either in forwarder field or data field)
+		if (data.Forwarder.IsNull() || data.Forwarder.IsUnknown()) &&
+			(data.Data.IsNull() || data.Data.IsUnknown() || data.Data.ValueString() == "") {
+			return fmt.Errorf("forwarder address is required for FWD records (use either 'forwarder' or 'data' field)")
+		}
+
+		// Validate protocol if specified
+		if !data.Protocol.IsNull() && !data.Protocol.IsUnknown() {
+			protocol := data.Protocol.ValueString()
+			validProtocols := []string{"Udp", "Tcp", "Tls", "Https", "Quic"}
+			valid := false
+			for _, p := range validProtocols {
+				if p == protocol {
+					valid = true
+					break
+				}
+			}
+			if !valid {
+				return fmt.Errorf("invalid protocol for FWD record: %s (must be one of: Udp, Tcp, Tls, Https, Quic)", protocol)
+			}
+		}
+
+		// Validate proxy type if specified
+		if !data.ProxyType.IsNull() && !data.ProxyType.IsUnknown() {
+			proxyType := data.ProxyType.ValueString()
+			validProxyTypes := []string{"NoProxy", "DefaultProxy", "Http", "Socks5"}
+			valid := false
+			for _, pt := range validProxyTypes {
+				if pt == proxyType {
+					valid = true
+					break
+				}
+			}
+			if !valid {
+				return fmt.Errorf("invalid proxy type for FWD record: %s (must be one of: NoProxy, DefaultProxy, Http, Socks5)", proxyType)
+			}
+		}
+
+		// If proxy type requires address and port, validate they are set
+		if !data.ProxyType.IsNull() && !data.ProxyType.IsUnknown() {
+			proxyType := data.ProxyType.ValueString()
+			if proxyType == "Http" || proxyType == "Socks5" {
+				if data.ProxyAddress.IsNull() || data.ProxyAddress.IsUnknown() || data.ProxyAddress.ValueString() == "" {
+					return fmt.Errorf("proxy_address is required when proxy_type is %s", proxyType)
+				}
+			}
 		}
 	}
 

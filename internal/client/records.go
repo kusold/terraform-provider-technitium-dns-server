@@ -48,6 +48,17 @@ type DNSRecordData struct {
 	Port     int    `json:"port,omitempty"`
 	Target   string `json:"target,omitempty"`
 
+	// FWD record
+	Protocol          string `json:"protocol,omitempty"`
+	Forwarder         string `json:"forwarder,omitempty"`
+	ForwarderPriority int    `json:"forwarderPriority,omitempty"`
+	DnssecValidation  bool   `json:"dnssecValidation,omitempty"`
+	ProxyType         string `json:"proxyType,omitempty"`
+	ProxyAddress      string `json:"proxyAddress,omitempty"`
+	ProxyPort         int    `json:"proxyPort,omitempty"`
+	ProxyUsername     string `json:"proxyUsername,omitempty"`
+	ProxyPassword     string `json:"proxyPassword,omitempty"`
+
 	// SOA record
 	PrimaryNameServer string `json:"primaryNameServer,omitempty"`
 	ResponsiblePerson string `json:"responsiblePerson,omitempty"`

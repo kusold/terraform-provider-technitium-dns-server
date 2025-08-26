@@ -1,81 +1,153 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "description": "Renovate configuration for Terraform Provider Technitium DNS Server",
-  "extends": ["config:best-practices", ":semanticCommits", ":automergeDigest"],
+  "extends": [
+    "config:best-practices",
+    ":semanticCommits",
+    ":automergeDigest"
+  ],
   "timezone": "America/Denver",
-  "labels": ["dependencies"],
-  "assignees": ["kusold"],
-  "reviewers": ["kusold"],
+  "labels": [
+    "dependencies"
+  ],
+  "assignees": [
+    "kusold"
+  ],
+  "reviewers": [
+    "kusold"
+  ],
   "packageRules": [
     {
-      "matchCategories": ["golang"],
+      "matchCategories": [
+        "golang"
+      ],
       "minimumReleaseAge": "3 days",
-      "postUpdateOptions": ["gomodTidy"]
+      "postUpdateOptions": [
+        "gomodTidy"
+      ]
     },
     {
       "description": "Group Go dependencies by type",
-      "matchManagers": ["gomod"],
-      "matchDepTypes": ["require"],
+      "matchManagers": [
+        "gomod"
+      ],
+      "matchDepTypes": [
+        "require"
+      ],
       "groupName": "go dependencies"
     },
     {
       "description": "Group HashiCorp Terraform packages",
-      "matchManagers": ["gomod"],
+      "matchManagers": [
+        "gomod"
+      ],
       "groupName": "terraform framework",
-      "reviewers": ["kusold"],
-      "labels": ["terraform", "dependencies"],
-      "matchPackageNames": ["/^github.com/hashicorp/terraform-/"]
+      "reviewers": [
+        "kusold"
+      ],
+      "labels": [
+        "terraform",
+        "dependencies"
+      ],
+      "matchPackageNames": [
+        "/^github.com/hashicorp/terraform-/"
+      ]
     },
     {
       "description": "Nix flake inputs",
-      "matchManagers": ["nix"],
-      "matchFileNames": ["flake.nix", "flake.lock"],
+      "matchManagers": [
+        "nix"
+      ],
+      "matchFileNames": [
+        "flake.nix",
+        "flake.lock"
+      ],
       "groupName": "nix flake inputs",
-      "schedule": ["before 6am on monday"],
+      "schedule": [
+        "before 6am on monday"
+      ],
       "automerge": true,
-      "labels": ["nix", "dependencies"]
+      "labels": [
+        "nix",
+        "dependencies"
+      ]
     },
     {
       "description": "GitHub Actions",
-      "matchManagers": ["github-actions"],
+      "matchManagers": [
+        "github-actions"
+      ],
       "automerge": true,
-      "labels": ["github-actions", "dependencies"]
+      "labels": [
+        "github-actions",
+        "dependencies"
+      ]
     },
     {
       "description": "Pin Go version updates",
-      "matchManagers": ["gomod"],
-      "matchDepTypes": ["golang"],
+      "matchManagers": [
+        "gomod"
+      ],
+      "matchDepTypes": [
+        "golang"
+      ],
       "rangeStrategy": "pin",
-      "labels": ["go-version", "dependencies"],
-      "reviewers": ["kusold"]
+      "labels": [
+        "go-version",
+        "dependencies"
+      ],
+      "reviewers": [
+        "kusold"
+      ]
     },
     {
       "description": "Major version updates require manual review",
-      "matchUpdateTypes": ["major"],
+      "matchUpdateTypes": [
+        "major"
+      ],
       "automerge": false,
-      "labels": ["major-update", "dependencies"],
-      "reviewers": ["kusold"],
+      "labels": [
+        "major-update",
+        "dependencies"
+      ],
+      "reviewers": [
+        "kusold"
+      ],
       "prPriority": 10
     },
     {
       "description": "Security updates get high priority",
       "vulnerabilityAlerts": {
-        "labels": ["security", "dependencies"],
+        "labels": [
+          "security",
+          "dependencies"
+        ],
         "automerge": false,
-        "reviewers": ["kusold"]
+        "reviewers": [
+          "kusold"
+        ]
       },
-      "matchPackageNames": ["/.*/"]
+      "matchPackageNames": [
+        "/.*/"
+      ]
     }
   ],
   "vulnerabilityAlerts": {
     "enabled": true,
-    "labels": ["security", "dependencies"],
-    "reviewers": ["kusold"]
+    "labels": [
+      "security",
+      "dependencies"
+    ],
+    "reviewers": [
+      "kusold"
+    ]
   },
   "osvVulnerabilityAlerts": true,
   "lockFileMaintenance": {
     "enabled": true,
-    "schedule": ["before 6am on monday"],
+    "schedule": [
+      "before 6am on monday"
+    ],
     "automerge": true
   },
   "ignoreDeps": [],
@@ -83,15 +155,22 @@
     {
       "customType": "regex",
       "description": "Update Go version in Dockerfile and CI files",
-      "managerFilePatterns": ["/(^|/)Dockerfile$/", "/\\.ya?ml$/"],
-      "matchStrings": ["go\\s+(?<currentValue>\\d+\\.\\d+(?:\\.\\d+)?)"],
+      "managerFilePatterns": [
+        "/(^|/)Dockerfile$/",
+        "/\\.ya?ml$/"
+      ],
+      "matchStrings": [
+        "go\\s+(?<currentValue>\\d+\\.\\d+(?:\\.\\d+)?)"
+      ],
       "depNameTemplate": "golang",
       "datasourceTemplate": "golang-version"
     },
     {
       "customType": "regex",
       "description": "Update Task version in GitHub Actions",
-      "fileMatch": ["\\.github/workflows/.+\\.ya?ml$"],
+      "managerFilePatterns": [
+        "/\\.github/workflows/.+\\.ya?ml$/"
+      ],
       "matchStrings": [
         "uses:\\s+arduino/setup-task@v2\\s+with:\\s+version:\\s+(?<currentValue>\\d+\\.\\d+\\.\\d+)"
       ],
