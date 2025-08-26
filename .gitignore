@@ -2,6 +2,7 @@
 .direnv/
 .idea/
 terraform-provider-technitium-dns-server
+terraform-provider-technitium
 
 # Pre-commit cache
 .pre-commit-cache/
