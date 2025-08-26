@@ -328,7 +328,7 @@ func (r *DNSRecordResource) Create(ctx context.Context, req resource.CreateReque
 	}
 
 	// For data value that might be crucial to uniquely identify the record
-	// Special handling for TXT records
+	// Special handling for TXT and FWD records
 	if data.Type.ValueString() == "TXT" {
 		// TXT records may have spaces and special characters that make IDs problematic
 		// For TXT records, exclude the data from the ID to avoid issues with special characters
@@ -338,6 +338,13 @@ func (r *DNSRecordResource) Create(ctx context.Context, req resource.CreateReque
 		tflog.Info(ctx, "Generated TXT record ID without data field", map[string]interface{}{
 			"record_id": recordID,
 			"txt_value": data.Data.ValueString(),
+		})
+	} else if data.Type.ValueString() == "FWD" {
+		// FWD records should not include the forwarder address in the ID because it's mutable
+		// The combination of zone, name, and type should be unique enough
+		tflog.Info(ctx, "Generated FWD record ID without data field", map[string]interface{}{
+			"record_id":     recordID,
+			"fwd_forwarder": data.Data.ValueString(),
 		})
 	} else if data.Data.ValueString() != "" {
 		// For other record types, include the data in the ID
@@ -349,6 +356,76 @@ func (r *DNSRecordResource) Create(ctx context.Context, req resource.CreateReque
 	// Update model with any computed fields from response
 	data.Disabled = types.BoolValue(recordResp.AddedRecord.Disabled)
 	data.DnssecStatus = types.StringValue(recordResp.AddedRecord.DnssecStatus)
+
+	// Update TTL from API response to handle any server-side modifications
+	if recordResp.AddedRecord.TTL > 0 {
+		data.TTL = types.Int64Value(int64(recordResp.AddedRecord.TTL))
+	}
+
+	// Set default values for computed fields that exist on all record types
+	if data.Priority.IsNull() || data.Priority.IsUnknown() {
+		data.Priority = types.Int64Value(0)
+	}
+	if data.Weight.IsNull() || data.Weight.IsUnknown() {
+		data.Weight = types.Int64Value(0)
+	}
+	if data.Port.IsNull() || data.Port.IsUnknown() {
+		data.Port = types.Int64Value(0)
+	}
+	if data.ForwarderPriority.IsNull() || data.ForwarderPriority.IsUnknown() {
+		data.ForwarderPriority = types.Int64Value(0)
+	}
+	if data.DnssecValidation.IsNull() || data.DnssecValidation.IsUnknown() {
+		data.DnssecValidation = types.BoolValue(false)
+	}
+	if data.ProxyPort.IsNull() || data.ProxyPort.IsUnknown() {
+		data.ProxyPort = types.Int64Value(0)
+	}
+
+	// For FWD records, populate computed fields from API response carefully
+	if data.Type.ValueString() == "FWD" {
+		// Always populate truly computed fields, but only if they weren't explicitly set
+		if data.ForwarderPriority.IsNull() || data.ForwarderPriority.IsUnknown() {
+			data.ForwarderPriority = types.Int64Value(int64(recordResp.AddedRecord.RData.ForwarderPriority))
+		}
+		if data.DnssecValidation.IsNull() || data.DnssecValidation.IsUnknown() {
+			data.DnssecValidation = types.BoolValue(recordResp.AddedRecord.RData.DnssecValidation)
+		}
+		if data.ProxyPort.IsNull() || data.ProxyPort.IsUnknown() {
+			data.ProxyPort = types.Int64Value(int64(recordResp.AddedRecord.RData.ProxyPort))
+		}
+
+		// Only populate optional fields if they were not configured
+		if data.Protocol.IsNull() || data.Protocol.IsUnknown() {
+			data.Protocol = types.StringValue(recordResp.AddedRecord.RData.Protocol)
+		}
+		if data.Forwarder.IsNull() || data.Forwarder.IsUnknown() {
+			data.Forwarder = types.StringValue(recordResp.AddedRecord.RData.Forwarder)
+		}
+
+		// For proxy fields, only set if they were configured AND have values from API
+		// This prevents setting DefaultProxy when user didn't configure proxy settings
+		if !data.ProxyType.IsNull() && !data.ProxyType.IsUnknown() {
+			if recordResp.AddedRecord.RData.ProxyType != "" {
+				data.ProxyType = types.StringValue(recordResp.AddedRecord.RData.ProxyType)
+			}
+		}
+		if !data.ProxyAddress.IsNull() && !data.ProxyAddress.IsUnknown() {
+			if recordResp.AddedRecord.RData.ProxyAddress != "" {
+				data.ProxyAddress = types.StringValue(recordResp.AddedRecord.RData.ProxyAddress)
+			}
+		}
+		if !data.ProxyUsername.IsNull() && !data.ProxyUsername.IsUnknown() {
+			if recordResp.AddedRecord.RData.ProxyUsername != "" {
+				data.ProxyUsername = types.StringValue(recordResp.AddedRecord.RData.ProxyUsername)
+			}
+		}
+		if !data.ProxyPassword.IsNull() && !data.ProxyPassword.IsUnknown() {
+			if recordResp.AddedRecord.RData.ProxyPassword != "" {
+				data.ProxyPassword = types.StringValue(recordResp.AddedRecord.RData.ProxyPassword)
+			}
+		}
+	}
 
 	// Set default values for computed fields
 	if data.Priority.IsNull() || data.Priority.IsUnknown() {
@@ -538,7 +615,13 @@ func (r *DNSRecordResource) Read(ctx context.Context, req resource.ReadRequest, 
 		data.Zone = types.StringValue(zone)
 		data.Name = types.StringValue(name)
 		data.Type = types.StringValue(recordType)
-		data.TTL = types.Int64Value(int64(record.TTL))
+
+		// Only update TTL from API if it's a valid value (> 0)
+		// Some record types may not return meaningful TTL values
+		if record.TTL > 0 {
+			data.TTL = types.Int64Value(int64(record.TTL))
+		}
+
 		data.Disabled = types.BoolValue(record.Disabled)
 		data.DnssecStatus = types.StringValue(record.DnssecStatus)
 
@@ -553,32 +636,6 @@ func (r *DNSRecordResource) Read(ctx context.Context, req resource.ReadRequest, 
 
 		if data.Port.IsNull() || data.Port.IsUnknown() {
 			data.Port = types.Int64Value(0)
-		}
-
-		// Set default values for FWD record fields
-		if data.ForwarderPriority.IsNull() || data.ForwarderPriority.IsUnknown() {
-			data.ForwarderPriority = types.Int64Value(0)
-		}
-
-		if data.DnssecValidation.IsNull() || data.DnssecValidation.IsUnknown() {
-			data.DnssecValidation = types.BoolValue(false)
-		}
-
-		if data.ProxyPort.IsNull() || data.ProxyPort.IsUnknown() {
-			data.ProxyPort = types.Int64Value(0)
-		}
-
-		// Set default values for FWD record fields
-		if data.ForwarderPriority.IsNull() || data.ForwarderPriority.IsUnknown() {
-			data.ForwarderPriority = types.Int64Value(0)
-		}
-
-		if data.DnssecValidation.IsNull() || data.DnssecValidation.IsUnknown() {
-			data.DnssecValidation = types.BoolValue(false)
-		}
-
-		if data.ProxyPort.IsNull() || data.ProxyPort.IsUnknown() {
-			data.ProxyPort = types.Int64Value(0)
 		}
 
 		// Set default values for FWD record fields
@@ -638,19 +695,21 @@ func (r *DNSRecordResource) Read(ctx context.Context, req resource.ReadRequest, 
 			data.ForwarderPriority = types.Int64Value(int64(record.RData.ForwarderPriority))
 			data.DnssecValidation = types.BoolValue(record.RData.DnssecValidation)
 
-			if record.RData.ProxyType != "" {
+			// Only set proxy fields if they were originally configured (not null/unknown)
+			// This prevents setting DefaultProxy when user didn't configure proxy settings
+			if !data.ProxyType.IsNull() && !data.ProxyType.IsUnknown() && record.RData.ProxyType != "" {
 				data.ProxyType = types.StringValue(record.RData.ProxyType)
 			}
-			if record.RData.ProxyAddress != "" {
+			if !data.ProxyAddress.IsNull() && !data.ProxyAddress.IsUnknown() && record.RData.ProxyAddress != "" {
 				data.ProxyAddress = types.StringValue(record.RData.ProxyAddress)
 			}
 			if record.RData.ProxyPort > 0 {
 				data.ProxyPort = types.Int64Value(int64(record.RData.ProxyPort))
 			}
-			if record.RData.ProxyUsername != "" {
+			if !data.ProxyUsername.IsNull() && !data.ProxyUsername.IsUnknown() && record.RData.ProxyUsername != "" {
 				data.ProxyUsername = types.StringValue(record.RData.ProxyUsername)
 			}
-			if record.RData.ProxyPassword != "" {
+			if !data.ProxyPassword.IsNull() && !data.ProxyPassword.IsUnknown() && record.RData.ProxyPassword != "" {
 				data.ProxyPassword = types.StringValue(record.RData.ProxyPassword)
 			}
 		}
@@ -738,6 +797,76 @@ func (r *DNSRecordResource) Update(ctx context.Context, req resource.UpdateReque
 	// Update model with any computed fields from response
 	data.Disabled = types.BoolValue(recordResp.UpdatedRecord.Disabled)
 	data.DnssecStatus = types.StringValue(recordResp.UpdatedRecord.DnssecStatus)
+
+	// Update TTL from API response to handle any server-side modifications
+	if recordResp.UpdatedRecord.TTL > 0 {
+		data.TTL = types.Int64Value(int64(recordResp.UpdatedRecord.TTL))
+	}
+
+	// Set default values for computed fields that exist on all record types
+	if data.Priority.IsNull() || data.Priority.IsUnknown() {
+		data.Priority = types.Int64Value(0)
+	}
+	if data.Weight.IsNull() || data.Weight.IsUnknown() {
+		data.Weight = types.Int64Value(0)
+	}
+	if data.Port.IsNull() || data.Port.IsUnknown() {
+		data.Port = types.Int64Value(0)
+	}
+	if data.ForwarderPriority.IsNull() || data.ForwarderPriority.IsUnknown() {
+		data.ForwarderPriority = types.Int64Value(0)
+	}
+	if data.DnssecValidation.IsNull() || data.DnssecValidation.IsUnknown() {
+		data.DnssecValidation = types.BoolValue(false)
+	}
+	if data.ProxyPort.IsNull() || data.ProxyPort.IsUnknown() {
+		data.ProxyPort = types.Int64Value(0)
+	}
+
+	// For FWD records, populate computed fields from API response carefully
+	if data.Type.ValueString() == "FWD" {
+		// Always populate truly computed fields, but only if they weren't explicitly set
+		if data.ForwarderPriority.IsNull() || data.ForwarderPriority.IsUnknown() {
+			data.ForwarderPriority = types.Int64Value(int64(recordResp.UpdatedRecord.RData.ForwarderPriority))
+		}
+		if data.DnssecValidation.IsNull() || data.DnssecValidation.IsUnknown() {
+			data.DnssecValidation = types.BoolValue(recordResp.UpdatedRecord.RData.DnssecValidation)
+		}
+		if data.ProxyPort.IsNull() || data.ProxyPort.IsUnknown() {
+			data.ProxyPort = types.Int64Value(int64(recordResp.UpdatedRecord.RData.ProxyPort))
+		}
+
+		// Only populate optional fields if they were not configured
+		if data.Protocol.IsNull() || data.Protocol.IsUnknown() {
+			data.Protocol = types.StringValue(recordResp.UpdatedRecord.RData.Protocol)
+		}
+		if data.Forwarder.IsNull() || data.Forwarder.IsUnknown() {
+			data.Forwarder = types.StringValue(recordResp.UpdatedRecord.RData.Forwarder)
+		}
+
+		// For proxy fields, only set if they were configured AND have values from API
+		// This prevents setting DefaultProxy when user didn't configure proxy settings
+		if !data.ProxyType.IsNull() && !data.ProxyType.IsUnknown() {
+			if recordResp.UpdatedRecord.RData.ProxyType != "" {
+				data.ProxyType = types.StringValue(recordResp.UpdatedRecord.RData.ProxyType)
+			}
+		}
+		if !data.ProxyAddress.IsNull() && !data.ProxyAddress.IsUnknown() {
+			if recordResp.UpdatedRecord.RData.ProxyAddress != "" {
+				data.ProxyAddress = types.StringValue(recordResp.UpdatedRecord.RData.ProxyAddress)
+			}
+		}
+		if !data.ProxyUsername.IsNull() && !data.ProxyUsername.IsUnknown() {
+			if recordResp.UpdatedRecord.RData.ProxyUsername != "" {
+				data.ProxyUsername = types.StringValue(recordResp.UpdatedRecord.RData.ProxyUsername)
+			}
+		}
+		if !data.ProxyPassword.IsNull() && !data.ProxyPassword.IsUnknown() {
+			if recordResp.UpdatedRecord.RData.ProxyPassword != "" {
+				data.ProxyPassword = types.StringValue(recordResp.UpdatedRecord.RData.ProxyPassword)
+			}
+		}
+	}
 
 	// Set default values for computed fields
 	if data.Priority.IsNull() || data.Priority.IsUnknown() {
