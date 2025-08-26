@@ -63,6 +63,7 @@ func (d *ZoneDataSource) Metadata(ctx context.Context, req datasource.MetadataRe
 
 func (d *ZoneDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		Description:         "Technitium DNS Server zone data source",
 		MarkdownDescription: "Technitium DNS Server zone data source",
 
 		Attributes: map[string]schema.Attribute{

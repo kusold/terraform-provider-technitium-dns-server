@@ -54,6 +54,7 @@ func (d *DNSRecordsDataSource) Metadata(ctx context.Context, req datasource.Meta
 
 func (d *DNSRecordsDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		Description:         "Data source to retrieve and filter DNS records from a Technitium DNS zone",
 		MarkdownDescription: "Data source to retrieve and filter DNS records from a Technitium DNS zone",
 
 		Attributes: map[string]schema.Attribute{

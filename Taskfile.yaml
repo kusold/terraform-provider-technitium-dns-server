@@ -92,10 +92,17 @@ tasks:
       - pre-commit autoupdate
 
   docs:
-    desc: Generate documentation
+    desc: Generate documentation using tfplugindocs (matches GitHub Action)
+    deps: [build]
     cmds:
-      - echo "Documentation is maintained in the docs/ directory"
-      - echo "Manual documentation has been created for all resources and data sources"
+      - echo "Generating Terraform provider documentation..."
+      - |
+        if ! command -v tfplugindocs &> /dev/null; then
+          echo "Installing tfplugindocs..."
+          go install github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs@latest
+        fi
+      - tfplugindocs generate --provider-name technitium
+      - echo "✅ Documentation generated successfully!"
 
   install:
     desc: Install provider locally for testing

@@ -89,6 +89,21 @@ resource "technitium_dns_record" "srv_record" {
 }
 ```
 
+### FWD Record Example
+
+```terraform
+resource "technitium_dns_record" "fwd_record" {
+  zone      = "example.com"
+  name      = "forward"
+  type      = "FWD"
+  ttl       = 3600
+  forwarder = "8.8.8.8"  # Forward to Google DNS
+  protocol  = "Udp"
+}
+```
+
+For more advanced FWD configurations including DNSSEC validation, custom protocols (HTTPS, TLS, QUIC), and proxy settings, see the [FWD record examples](https://github.com/kusold/terraform-provider-technitium-dns-server/blob/main/examples/resources/technitium_dns_record/fwd-record.tf).
+
 {{ .SchemaMarkdown | trimspace }}
 
 ## Import
