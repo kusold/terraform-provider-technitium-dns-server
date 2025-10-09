@@ -95,7 +95,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       docker:
-        image: docker:dind@sha256:c090c93b63bc690570a0cab398904c855a46f08e0b6804e51bb5ad26e3407f9a
+        image: docker:dind@sha256:7c3953162b1feca2aeb68a88ccb206485ff8c06177352ed9ffb3606354837869
         options: --privileged
     steps:
       - name: Checkout
@@ -120,7 +120,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       docker:
-        image: docker:dind@sha256:c090c93b63bc690570a0cab398904c855a46f08e0b6804e51bb5ad26e3407f9a
+        image: docker:dind@sha256:7c3953162b1feca2aeb68a88ccb206485ff8c06177352ed9ffb3606354837869
         options: --privileged
     steps:
       - name: Checkout
